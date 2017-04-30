@@ -197,7 +197,7 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
 ## Homebrew help location
 HELPDIR=/usr/local/share/zsh/helpfiles
 ## Homebrew helper to allow more API access on Github
-HOMEBREW_GITHUB_API_TOKEN="9c4c913a71b341640931a1f6a4b2d7a9a8d4890a"
+HOMEBREW_GITHUB_API_TOKEN="7132278168b984f9aa5a7877cb9c7039b5fef984"
 
 ## Vim access to Github tokens
 export VIM_GITHUB_API_TOKEN="378bff1f65dd554dcc80c3f874668850ee0180ec"
