@@ -144,7 +144,7 @@ fi
 ## fix paths
 BREW_PATH="`/usr/local/bin/brew --prefix`"
 # make user binaries a priority
-PATH=${USER_BIN}:${PATH}
+PATH=${USER_BIN}:${BREW_PATH}/opt/sqlite/bin:${PATH}
 # add Homebrew to path
 PATH=${PATH}:${BREW_PATH}/share/npm/bin:${BREW_PATH}/sbin
 # add Android to path
