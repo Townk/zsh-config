@@ -168,7 +168,7 @@ export LESS="-r -F"
 
 ## define default path completion
 setopt auto_cd
-cdpath=(${HOME}/Projects/work/firetv/workspace/platformui ${HOME}/Projects/work/firetv/workspace/systemapps ${HOME}/Projects/work/firetv/workspace/launcher)
+cdpath=(${HOME}/Projects/work/firetv/workspace/firetvcore ${HOME}/Projects/personal)
 
 ## default editor
 EDITOR='vim'
