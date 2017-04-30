@@ -296,7 +296,7 @@ prompt pure
 WORKON_HOME=${HOME}/.virtualenvs
 PROJECT_HOME=${HOME}/Projects/personal/python
 VIRTUALENVWRAPPER_SCRIPT=/usr/local/bin/virtualenvwrapper.sh
-VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
+VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python
 source /usr/local/bin/virtualenvwrapper_lazy.sh
 
 
