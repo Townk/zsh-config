@@ -1,7 +1,7 @@
 # # --------------------------------------------------------------------
 # # Configuration file for Z Shell
 # # By: Thiago Alves
-# # Last Update: February 26, 2015
+# # Last Update: April, 30 2018
 # # --------------------------------------------------------------------
 
 
@@ -13,10 +13,9 @@
 # # 3. Environment Options
 # # 4. Custom Shell Functions
 # # 5. Promp Appearances
-# # 6. Custom variables
-# # 7. Command Completion
-# # 8. Key Bindings
-# # 9. Plugins
+# # 6. Command Completion
+# # 7. Key Bindings
+# # 8. Plugins
 # # --------------------------------------------------------------------
 
 # # --------------------------------------------------------------------
@@ -33,14 +32,11 @@ if [[ "${terminfo[colors]}" -ge 8 ]]; then
 fi
 
 for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE BLACK; do
-    eval COLOR_${color}='${terminfo[bold]}${fg[${(L)color}]}'
-    eval COLOR_LIGHT_${color}='${fg[${(L)color}]}'
     eval PR_${color}='%{${terminfo[bold]}${fg[${(L)color}]}%}'
     eval PR_LIGHT_${color}='%{${fg[${(L)color}]}%}'
     (( count = ${count} + 1 ))
 done
 PR_NO_COLOR="%{${terminfo[sgr0]}%}"
-COLOR_NO_COLOR="${terminfo[sgr0]}"
 
 
 # # --------------------------------------------------------------------
@@ -95,7 +91,8 @@ alias ssh-x='ssh -o CompressionLevel=9 -c arcfour,blowfish-cbc -YC'
 # makes easy to initiate iPython
 alias py='ipython'
 
-alias gerrit='ssh -p 9418 e-gerrit.labcollab.net gerrit'
+# macOS
+alias qlf='qlmanage -p "$@" > /dev/null 2>&1'
 
 
 # # --------------------------------------------------------------------
@@ -125,7 +122,7 @@ unsetopt \
 
 ## history settins
 HISTSIZE=100000
-HISTFILE=~/.zsh/history
+HISTFILE=${ZDOTDIR:-$HOME}/cache/history
 SAVEHIST=${HISTSIZE}
 
 ## Java
@@ -136,7 +133,6 @@ export ANDROID_HOME="/usr/local/android/sdk"
 export ANDROID_SDK_ROOT=${ANDROID_HOME}
 
 # user binaries
-export USER_BIN="${HOME}/Library/bin"
 if [ ! -d ${USER_BIN} ]; then
     mkdir -p ${USER_BIN}
 fi
@@ -144,13 +140,12 @@ fi
 ## fix paths
 BREW_PATH="`/usr/local/bin/brew --prefix`"
 # make user binaries a priority
-PATH=${USER_BIN}:${BREW_PATH}/opt/sqlite/bin:${PATH}
+PATH=${USER_BIN}:${PATH}
 # add Homebrew to path
-PATH=${PATH}:${BREW_PATH}/share/npm/bin:${BREW_PATH}/sbin
+PATH=${PATH}:${BREW_PATH}/share/npm/bin:${BREW_PATH}/opt/sqlite/bin:${BREW_PATH}/sbin
 # add Android to path
 PATH=${PATH}:${ANDROID_SDK_ROOT}/tools:${ANDROID_SDK_ROOT}/platform-tools
-# add Fortify to path
-PATH=${PATH}:/Applications/HP_Fortify/HP_Fortify_SCA_and_Apps_4.21/bin
+## fix man paths
 if [ -z ${MANPATH} ]; then
     MANPATH=${BREW_PATH}/share/man:${MANPATH}
 else
@@ -162,16 +157,21 @@ unset BREW_PATH
 
 HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
-fpath=(~/.zsh/functions /usr/local/share/zsh-completions ${fpath})
+# search path for zsh functions  (fpath ==> function path)
+fpath=(                                  \
+        ${ZDOTDIR:-$HOME}/functions      \
+        /usr/local/share/zsh-completions \
+        ${fpath}                         \
+      )
 
 export LESS="-r -F"
 
 ## define default path completion
 setopt auto_cd
-cdpath=(${HOME}/Projects/work/firetv/workspace/firetvcore ${HOME}/Projects/personal)
+cdpath=(${HOME}/Projects/personal ${HOME}/Depot/Dropbox/Documents/OrgMode ${HOME}/Depot)
 
 ## default editor
-EDITOR='vim'
+export EDITOR='vim'
 VISUAL=${EDITOR}
 
 ## default language for shell
@@ -197,25 +197,14 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
 ## Homebrew help location
 HELPDIR=/usr/local/share/zsh/helpfiles
 ## Homebrew helper to allow more API access on Github
-HOMEBREW_GITHUB_API_TOKEN="7132278168b984f9aa5a7877cb9c7039b5fef984"
-
+export HOMEBREW_GITHUB_API_TOKEN=$(gpg_decrypt ${ZDOTDIR:-$HOME}/.secrets/github.api.homebrew)
 ## Vim access to Github tokens
-export VIM_GITHUB_API_TOKEN="378bff1f65dd554dcc80c3f874668850ee0180ec"
+export VIM_GITHUB_API_TOKEN=$(gpg_decrypt ${ZDOTDIR:-$HOME}/.secrets/github.api.vim)
 
 
 # # --------------------------------------------------------------------
 # # 4. Custom Shell Functions
 # # --------------------------------------------------------------------
-
-## print working directory after a cd
-# function cd {
-#     if [[ $@ == '-' ]]; then
-#         builtin cd "$@" > /dev/null  # We'll handle pwd.
-#     else
-#         builtin cd "$@"
-#     fi
-#     echo -e "   \033[1;30m"`pwd`"\033[0m"
-# }
 
 ## enable setenv() for csh compatibility
 function setenv {
@@ -227,10 +216,6 @@ function fcd {
     [ -n "${pFinder}" ] && cd "${pFinder}"
 }
 
-function gitvimdiff {
-    git diff $@ | vim -
-}
-
 function gitup {
     if git rev-parse --git-dir > /dev/null 2>&1; then
         cd "./"$(git rev-parse --show-cdup)
@@ -239,40 +224,28 @@ function gitup {
     fi
 }
 
-function repo-switch {
-    repo_root=`pwd`
-    while [[ ! -d "${repo_root}/.repo" && "${repo_root}" != "${HOME}" && "${repo_root}" != "/" ]]; do
-        repo_root=`dirname ${repo_root}`
-    done
-
-    if [[ ! -d "${repo_root}/.repo" ]]; then
-        echo "ERROR: No repo project found on the tree."
-        exit 1
-    fi
-
-    pushd ${repo_root}
-
-    repo forall -c "git prune && git gc" && repo init -u ssh://e-gerrit.labcollab.net:9418/fireos/manifest -b $1 && repo sync -j16
-
-    popd
-}
-
-function _not_inside_tmux {
-  [[ -z "${TMUX}" ]]
-}
-
 function ensure_tmux_is_running {
-    if _not_inside_tmux; then
-        tat
+    if [[ -z "${TMUX}" ]]; then
+        $HOME/.config/tmux/bin/tat
     fi
 }
 
-function adbpwd {
-    echo -n "Password to send through adb: "
-    read -s pwd_text
-    echo
-    $ANDROID_HOME/platform-tools/adb shell input text "$pwd_text"
+function gpg_encrypt {
+    if [ -e "$@" ]; then
+        gpg --encrypt --armor --recipient talk@thiagoalves.com.br "$@" > "$@".gpg
+    else
+        echo "$@" | gpg --encrypt --armor --recipient talk@thiagoalves.com.br
+    fi
 }
+
+function gpg_decrypt {
+    if [ -e "$@" ]; then
+        gpg --decrypt -q "$@"
+    else
+        echo "$@" | gpg --decrypt -q
+    fi
+}
+
 
 # # --------------------------------------------------------------------
 # # 5. Promp Appearances
@@ -289,19 +262,8 @@ PURE_GIT_UNTRACKED_DIRTY=0
 prompt pure
 
 
-
 # # --------------------------------------------------------------------
-# # 6. Custom variables
-# # --------------------------------------------------------------------
-WORKON_HOME=${HOME}/.virtualenvs
-PROJECT_HOME=${HOME}/Projects/personal/python
-VIRTUALENVWRAPPER_SCRIPT=/usr/local/bin/virtualenvwrapper.sh
-VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python
-source /usr/local/bin/virtualenvwrapper_lazy.sh
-
-
-# # --------------------------------------------------------------------
-# # 7. Command Completion
+# # 6. Command Completion
 # # --------------------------------------------------------------------
 zstyle :compinstall filename '/Users/thiagoa/.zshrc'
 autoload -Uz compinit
@@ -312,7 +274,7 @@ zmodload -i zsh/complist
 
 ## Enables cache for auto-completion (according to Portage)
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ~/.zsh/cache
+zstyle ':completion:*' cache-path ${ZDOTDIR:-$HOME}/cache
 
 ## Ignore completion functions for commands you don’t have:
 zstyle ':completion:*:functions' ignored-patterns '_*'
@@ -358,7 +320,7 @@ autoload -Uz bashcompinit
 bashcompinit
 
 # # --------------------------------------------------------------------
-# # 8. Key Bindings (must be the last thing in the config)
+# # 7. Key Bindings (must be one of the last things in the config)
 # # --------------------------------------------------------------------
 ## remove unwanted bindings
 ## since we're using vi key binding we should turn off any bind that
@@ -404,12 +366,41 @@ bindkey -M viins '^p' history-incremental-search-forward
 bindkey -M vicmd '^p' history-incremental-search-forward
 
 # # --------------------------------------------------------------------
-# # 9. Plugins
+# # 8. Plugins
 # # --------------------------------------------------------------------
-for plugin in ~/.zsh/plugins/*.plugin.*; do
-    # Source each plugin on the plugins directory...
-    source ${plugin}
-done
+
+# FZF integration
+[ -f ${ZDOTDIR:-$HOME}/.fzf.zsh ] && source ${ZDOTDIR:-$HOME}/.fzf.zsh
+
+# ZPlug session
+# Use this place to add all your "automagically installed" plugins.
+export ZPLUG_HOME=/usr/local/opt/zplug
+source ${ZPLUG_HOME}/init.zsh
+
+zplug "${ZDOTDIR:-$HOME}",                      from:local,                use:'plugins/*.plugin.*'
+if [ -d ${ZDOTDIR:-$HOME}/work ]; then
+    zplug "${ZDOTDIR:-$HOME}/work",             from:local,                use:'plugins/*.plugin.*'
+fi
+zplug "supercrabtree/k"
+zplug "plugins/colored-man-pages",              from:oh-my-zsh, as:plugin
+zplug "plugins/colorize",                       from:oh-my-zsh, as:plugin
+zplug "plugins/command-not-found",              from:oh-my-zsh, as:plugin
+zplug "plugins/git-flow",                       from:oh-my-zsh, as:plugin
+zplug "plugins/repo",                           from:oh-my-zsh, as:plugin
+zplug "plugins/vi-mode",                        from:oh-my-zsh, as:plugin
+zplug "zsh-users/zsh-history-substring-search",                            defer:3
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+zplug load
+
+# Plugins configuration
 
 # History Substring Search Configuration
 # bind UP and DOWN arrow keys
@@ -425,18 +416,6 @@ bindkey -M emacs '^N' history-substring-search-down
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-PERL_MB_OPT="--install_base \"/Users/thiagoa/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/Users/thiagoa/perl5"; export PERL_MM_OPT;
-
-# Systemwide plugins
-# Highlight has to be one of the last plugins evaluated
-# source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-# ZSH_HIGHLIGHT_STYLES[globbing]='none'
-
-# And the history substring must be evaluated AFTER highlights
-source /usr/local/opt/zsh-history-substring-search/zsh-history-substring-search.zsh
 HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='bg=none,fg=yellow,bold'
 HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='bg=none,fg=red,bold'
 HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS='l'
@@ -445,5 +424,7 @@ HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS='l'
 # overwriten it
 bindkey '\e,' clear-screen
 bindkey '\e.' insert-last-word
+
+# End of Plugins
 
 ensure_tmux_is_running
