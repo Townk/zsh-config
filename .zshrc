@@ -10,8 +10,8 @@
 # # --------
 # # 1. Define color variables
 # # 2. Aliases
-# # 3. Environment Options
-# # 4. Custom Shell Functions
+# # 3. Custom Shell Functions
+# # 4. Environment Options
 # # 5. Promp Appearances
 # # 6. Command Completion
 # # 7. Key Bindings
@@ -96,7 +96,52 @@ alias qlf='qlmanage -p "$@" > /dev/null 2>&1'
 
 
 # # --------------------------------------------------------------------
-# # 3. Environment Options
+# # 3. Custom Shell Functions
+# # --------------------------------------------------------------------
+
+## enable setenv() for csh compatibility
+function setenv {
+    typeset -x "${1}${1:+=}${(@)argv[2,$#]}"
+}
+
+function fcd {
+    pFinder=`osascript -e 'tell application "Finder" to if (count of Finder windows) > 0 then get POSIX path of (target of front Finder window as text)'`
+    [ -n "${pFinder}" ] && cd "${pFinder}"
+}
+
+function gitup {
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+        cd "./"$(git rev-parse --show-cdup)
+        return
+    else
+    fi
+}
+
+function ensure_tmux_is_running {
+    if [[ -z "${TMUX}" ]]; then
+        $HOME/.config/tmux/bin/tat
+    fi
+}
+
+function gpg_encrypt {
+    if [ -e "$@" ]; then
+        gpg --encrypt --armor --recipient talk@thiagoalves.com.br "$@" > "$@".gpg
+    else
+        echo "$@" | gpg --encrypt --armor --recipient talk@thiagoalves.com.br
+    fi
+}
+
+function gpg_decrypt {
+    if [ -e "$@" ]; then
+        gpg --decrypt -q "$@"
+    else
+        echo "$@" | gpg --decrypt -q
+    fi
+}
+
+
+# # --------------------------------------------------------------------
+# # 4. Environment Options
 # # --------------------------------------------------------------------
 ## turn options on
 setopt \
@@ -122,6 +167,10 @@ unsetopt \
 
 ## history settins
 HISTSIZE=100000
+# cache directory
+if [ ! -d ${ZDOTDIR:-$HOME}/cache ]; then
+    mkdir -p ${ZDOTDIR:-$HOME}/cache
+fi
 HISTFILE=${ZDOTDIR:-$HOME}/cache/history
 SAVEHIST=${HISTSIZE}
 
@@ -201,50 +250,6 @@ export HOMEBREW_GITHUB_API_TOKEN=$(gpg_decrypt ${ZDOTDIR:-$HOME}/.secrets/github
 ## Vim access to Github tokens
 export VIM_GITHUB_API_TOKEN=$(gpg_decrypt ${ZDOTDIR:-$HOME}/.secrets/github.api.vim)
 
-
-# # --------------------------------------------------------------------
-# # 4. Custom Shell Functions
-# # --------------------------------------------------------------------
-
-## enable setenv() for csh compatibility
-function setenv {
-    typeset -x "${1}${1:+=}${(@)argv[2,$#]}"
-}
-
-function fcd {
-    pFinder=`osascript -e 'tell application "Finder" to if (count of Finder windows) > 0 then get POSIX path of (target of front Finder window as text)'`
-    [ -n "${pFinder}" ] && cd "${pFinder}"
-}
-
-function gitup {
-    if git rev-parse --git-dir > /dev/null 2>&1; then
-        cd "./"$(git rev-parse --show-cdup)
-        return
-    else
-    fi
-}
-
-function ensure_tmux_is_running {
-    if [[ -z "${TMUX}" ]]; then
-        $HOME/.config/tmux/bin/tat
-    fi
-}
-
-function gpg_encrypt {
-    if [ -e "$@" ]; then
-        gpg --encrypt --armor --recipient talk@thiagoalves.com.br "$@" > "$@".gpg
-    else
-        echo "$@" | gpg --encrypt --armor --recipient talk@thiagoalves.com.br
-    fi
-}
-
-function gpg_decrypt {
-    if [ -e "$@" ]; then
-        gpg --decrypt -q "$@"
-    else
-        echo "$@" | gpg --decrypt -q
-    fi
-}
 
 
 # # --------------------------------------------------------------------
