@@ -178,7 +178,7 @@ SAVEHIST=${HISTSIZE}
 export JAVA_HOME=$(/usr/libexec/java_home)
 
 ## android home
-export ANDROID_HOME="/usr/local/android/sdk"
+export ANDROID_HOME="/usr/local/share/android-sdk"
 export ANDROID_SDK_ROOT=${ANDROID_HOME}
 
 # user binaries
