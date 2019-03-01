@@ -109,7 +109,7 @@ function fcd {
     [ -n "${pFinder}" ] && cd "${pFinder}"
 }
 
-function gitup {
+function gcd {
     if git rev-parse --git-dir > /dev/null 2>&1; then
         cd "./"$(git rev-parse --show-cdup)
         return
@@ -137,6 +137,11 @@ function gpg_decrypt {
     else
         echo "$@" | gpg --decrypt -q
     fi
+}
+
+# Returns whether the given command is executable or aliased.
+function _has {
+	return $( whence $1 >/dev/null )
 }
 
 
@@ -375,7 +380,21 @@ bindkey -M vicmd '^p' history-incremental-search-forward
 # # --------------------------------------------------------------------
 
 # FZF integration
-[ -f ${ZDOTDIR:-$HOME}/.fzf.zsh ] && source ${ZDOTDIR:-$HOME}/.fzf.zsh
+if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
+    source /usr/local/opt/fzf/shell/key-bindings.zsh
+    source /usr/local/opt/fzf/shell/completion.zsh
+fi
+
+# fzf + ag configuration
+if _has fzf && _has ag; then
+	export FZF_DEFAULT_COMMAND='ag --nocolor -g ""'
+	export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+	export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"
+	export FZF_DEFAULT_OPTS='
+	--color fg:242,bg:236,hl:65,fg+:15,bg+:239,hl+:108
+	--color info:108,prompt:109,spinner:108,pointer:168,marker:168
+	'
+fi
 
 # ZPlug session
 # Use this place to add all your "automagically installed" plugins.
@@ -387,13 +406,15 @@ if [ -d ${ZDOTDIR:-$HOME}/work ]; then
     zplug "${ZDOTDIR:-$HOME}/work",             from:local,                use:'plugins/*.plugin.*'
 fi
 zplug "supercrabtree/k"
+zplug "zsh-users/zsh-autosuggestions"
+zplug "zdharma/fast-syntax-highlighting"
+zplug "gmatheu/shell-plugins",                                                      use:'explain-shell/*.zsh'
 zplug "plugins/colored-man-pages",              from:oh-my-zsh, as:plugin
 zplug "plugins/colorize",                       from:oh-my-zsh, as:plugin
 zplug "plugins/command-not-found",              from:oh-my-zsh, as:plugin
-zplug "plugins/git-flow",                       from:oh-my-zsh, as:plugin
-zplug "plugins/repo",                           from:oh-my-zsh, as:plugin
 zplug "plugins/vi-mode",                        from:oh-my-zsh, as:plugin
 zplug "zsh-users/zsh-history-substring-search",                            defer:3
+zplug "b4b4r07/enhancd",                                                            use:init.sh
 
 # Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
@@ -429,6 +450,9 @@ HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS='l'
 # overwriten it
 bindkey '\e,' clear-screen
 bindkey '\e.' insert-last-word
+
+# complete current sugestion with Ctrl+Space
+bindkey '^ ' autosuggest-accept
 
 # End of Plugins
 
