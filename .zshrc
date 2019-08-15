@@ -35,7 +35,9 @@ test -e "${ITERMDIR}/shell_integration.zsh" && source "${ITERMDIR}/shell_integra
 export ZSH_CACHE_DIR=${ZDOTDIR:-$HOME}/cache
 if [ ! -d /usr/local/opt/zplug ]; then
     export ZPLUG_HOME=${HOME}/.config/zplug
-    curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
+    if [ ! -d ${ZPLUG_HOME} ]; then
+        curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
+    fi
 else
     export ZPLUG_HOME=/usr/local/opt/zplug
 fi
@@ -384,26 +386,28 @@ zle -N explain-this
 
 # Homebrew
 ## fix paths
-BREW_PATH="`/usr/local/bin/brew --prefix`"
-## make user binaries a priority
-PATH=${USERBINDIR}:${PATH}
-## add Homebrew to path
-PATH=${PATH}:${BREW_PATH}/share/npm/bin:${BREW_PATH}/opt/sqlite/bin:${BREW_PATH}/sbin
-## fix man paths
-if [ -z ${MANPATH} ]; then
-    MANPATH=${BREW_PATH}/share/man:${MANPATH}
-else
-    MANPATH=${BREW_PATH}/share/man
+if [[ -a /usr/local/bin/brew ]]; then
+    BREW_PATH="`/usr/local/bin/brew --prefix`"
+    ## make user binaries a priority
+    PATH=${USERBINDIR}:${PATH}
+    ## add Homebrew to path
+    PATH=${PATH}:${BREW_PATH}/share/npm/bin:${BREW_PATH}/opt/sqlite/bin:${BREW_PATH}/sbin
+    ## fix man paths
+    if [ -z ${MANPATH} ]; then
+        MANPATH=${BREW_PATH}/share/man:${MANPATH}
+    else
+        MANPATH=${BREW_PATH}/share/man
+    fi
+    export PATH
+    export MANPATH
+    unset BREW_PATH
+    ## Allow apps to be installed on the /Applications directory
+    HOMEBREW_CASK_OPTS="--appdir=/Applications"
+    ## Homebrew help location
+    HELPDIR=/usr/local/share/zsh/helpfiles
+    ## Homebrew helper to allow more API access on Github
+    export HOMEBREW_GITHUB_API_TOKEN=$(gpg_decrypt ${ZDOTDIR:-$HOME}/.secrets/github.api.homebrew)
 fi
-export PATH
-export MANPATH
-unset BREW_PATH
-## Allow apps to be installed on the /Applications directory
-HOMEBREW_CASK_OPTS="--appdir=/Applications"
-## Homebrew help location
-HELPDIR=/usr/local/share/zsh/helpfiles
-## Homebrew helper to allow more API access on Github
-export HOMEBREW_GITHUB_API_TOKEN=$(gpg_decrypt ${ZDOTDIR:-$HOME}/.secrets/github.api.homebrew)
 
 # FZF integration
 if _has fzf; then
@@ -462,15 +466,6 @@ if _has fzf; then
         source /usr/local/opt/fzf/shell/completion.zsh
     fi
 fi
-
-# VirtualEnvWrapper
-export WORKON_HOME=$CONFIGDIR/python/virtualenvs
-export VIRTUALENVWRAPPER_HOOK_DIR=$CONFIGDIR/python/hooks
-export PROJECT_HOME=$HOME/Projects
-export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
-export VIRTUALENVWRAPPER_SCRIPT=/usr/local/bin/virtualenvwrapper.sh
-export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--no-site-packages'
-source /usr/local/bin/virtualenvwrapper_lazy.sh
 
 
 
@@ -614,7 +609,7 @@ alias gl='git l'
 alias notify='/Applications/Terminal\ Notifier.app/Contents/MacOS/terminal-notifier'
 
 # access help online
-unalias run-help
+unalias run-help 2> /dev/null
 autoload -Uz run-help
 HELPDIR=/usr/local/share/zsh/help
 
