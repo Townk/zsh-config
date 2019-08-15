@@ -33,9 +33,11 @@ test -e "${ITERMDIR}/shell_integration.zsh" && source "${ITERMDIR}/shell_integra
 # ZPlug session
 # Use this place to add all your "automagically installed" plugins.
 export ZSH_CACHE_DIR=${ZDOTDIR:-$HOME}/cache
-export ZPLUG_HOME=/usr/local/opt/zplug
-if [ ! -d ${ZPLUG_HOME} ]; then
+if [ ! -d /usr/local/opt/zplug ]; then
+    export ZPLUG_HOME=${HOME}/.config/zplug
     curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
+else
+    export ZPLUG_HOME=/usr/local/opt/zplug
 fi
 source ${ZPLUG_HOME}/init.zsh
 
