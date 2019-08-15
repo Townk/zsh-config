@@ -1,98 +1,163 @@
 # # --------------------------------------------------------------------
 # # Configuration file for Z Shell
 # # By: Thiago Alves
-# # Last Update: April, 30 2018
+# # Last Update: March, 22 2019
 # # --------------------------------------------------------------------
 
 
 # # --------------------------------------------------------------------
 # # Contents:
 # # --------
-# # 1. Define color variables
-# # 2. Aliases
+# # 1. Plugins
+# # 2. Environment Options
 # # 3. Custom Shell Functions
-# # 4. Environment Options
-# # 5. Promp Appearances
-# # 6. Command Completion
-# # 7. Key Bindings
-# # 8. Plugins
+# # 4. Applications
+# # 5. Define color variables
+# # 6. Promp Appearances
+# # 7. Command Completion
+# # 8. Aliases
+# # 9. Key Bindings
 # # --------------------------------------------------------------------
 
+
 # # --------------------------------------------------------------------
-# # 1. Define color variables
+# # 1. Plugins
 # # --------------------------------------------------------------------
-# Note: options -U and -z do the following:
-# -U: prevent any alias from being resolved. This means that if you
-#     created an alias called 'ls', during the load of the function
-#     if the 'ls' command is used, the alias will not be used.
-# -z: make sure you're executing in zsh mode.
-autoload -Uz colors zsh/terminfo
-if [[ "${terminfo[colors]}" -ge 8 ]]; then
-    colors
+# Before anything we should setup, install, and enable all plugins we
+# want. After that any configuration we do will overrite the plugin
+# defaults.
+
+# iTerm 2 Integration
+test -e "${ITERMDIR}/shell_integration.zsh" && source "${ITERMDIR}/shell_integration.zsh"
+
+# ZPlug session
+# Use this place to add all your "automagically installed" plugins.
+export ZSH_CACHE_DIR=${ZDOTDIR:-$HOME}/cache
+export ZPLUG_HOME=/usr/local/opt/zplug
+source ${ZPLUG_HOME}/init.zsh
+
+zplug "${ZDOTDIR:-$HOME}",                      from:local,                use:'plugins/*.plugin.*'
+if [ -d ${ZDOTDIR:-$HOME}/work ]; then
+    zplug "${ZDOTDIR:-$HOME}/work",             from:local,                use:'plugins/*.plugin.*'
 fi
 
-for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE BLACK; do
-    eval PR_${color}='%{${terminfo[bold]}${fg[${(L)color}]}%}'
-    eval PR_LIGHT_${color}='%{${fg[${(L)color}]}%}'
-    (( count = ${count} + 1 ))
-done
-PR_NO_COLOR="%{${terminfo[sgr0]}%}"
+zplug "softmoth/zsh-vim-mode"
+zplug "zsh-users/zsh-autosuggestions",          defer:2
+zplug "zdharma/fast-syntax-highlighting"
+zplug "MichaelAquilina/zsh-you-should-use",     defer:2
+zplug "gmatheu/shell-plugins",                  use:'explain-shell/*.zsh', defer:2
+zplug "b4b4r07/enhancd",                        use:init.sh, defer:2
+zplug "zsh-users/zsh-history-substring-search", defer:3
+zplug "plugins/colored-man-pages",              from:oh-my-zsh, as:plugin, defer:2
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+zplug load
+
+# Plugins configuration
+
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='bg=none,fg=yellow,bold'
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='bg=none,fg=red,bold'
+HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS='l'
+MODE_CURSOR_VICMD="green block"
+MODE_CURSOR_VIINS="#20d08a blinking bar"
+MODE_CURSOR_SEARCH="#ff00ff steady underline"
+MODE_INDICATOR_VICMD='%K{#fff275} %F{#595429}NORMAL%f %k'
+MODE_INDICATOR_REPLACE='%K{#fc766a} %F{#592925}REPLACE%f %k'
+MODE_INDICATOR_SEARCH='%K{#90c962} %F{#40592b}SEARCH%f %k'
+MODE_INDICATOR_VISUAL='%K{#6699cc} %F{#2d2f37}VISUAL%f %k'
+MODE_INDICATOR_VLINE='%K{#5985b2} %F{#2c4259}V-LINE%f %k'
 
 
 # # --------------------------------------------------------------------
-# # 2. Aliases
+# # 2. Environment Options
 # # --------------------------------------------------------------------
-## file extension association
-alias -s html="open"
+## turn options on
+setopt \
+    always_to_end          \
+    append_history         \
+    auto_cd                \
+    auto_list              \
+    auto_menu              \
+    complete_in_word       \
+    correct                \
+    extended_glob          \
+    extended_history       \
+    hist_expire_dups_first \
+    hist_ignore_all_dups   \
+    hist_ignore_space      \
+    hist_verify            \
+    inc_append_history     \
+    interactive_comments   \
+    nomatch                \
+    notify                 \
+    prompt_subst           \
+    share_history
 
-## global aliases
-alias -g ...='../..'
-alias -g ....='../../..'
-alias -g .....='../../../..'
-alias -g NUL="> /dev/null 2>&1"
-alias -g C='| wc -l'
+## turn options off
+unsetopt \
+    beep \
+    flowcontrol \
+    menucomplete
 
-## command aliases
-# alias ls='ls -F'
-alias ll='ls -l'
-alias la='ls -A'
-alias lla='ls -Al'
-alias rm='rm -i'
-alias h='history 1 -1'
-alias pgrep='pgrep -lf' # long output, match against full args list
-alias ccat='colorize_via_pygmentize'
-alias em='emacs -nw'
-alias lcat='logcat-color'
+## history settins
+HISTSIZE=100000
+# cache directory
+if [ ! -d ${ZSH_CACHE_DIR} ]; then
+    mkdir -p ${ZSH_CACHE_DIR}
+fi
+HISTFILE=${ZSH_CACHE_DIR}/history
+SAVEHIST=${HISTSIZE}
 
-## git aliases
-alias gst='git status --short'
-alias gu='git pull'
-alias gp='git push'
-alias gd='gitvimdiff'
-alias gdf='git diff --name-only'
-alias gc='git commit -v'
-alias gca='git commit -v -a'
-alias gb='git branch'
-alias gba='git branch -a'
-alias grv='git remote -v'
-alias gl='git l'
+# user binaries
+if [ ! -d ${USERBINDIR} ]; then
+    mkdir -p ${USERBINDIR}
+fi
 
-# notification center
-alias notify='/Applications/Terminal\ Notifier.app/Contents/MacOS/terminal-notifier'
 
-# access help online
-unalias run-help
-autoload -Uz run-help
-HELPDIR=/usr/local/share/zsh/help
+# search path for zsh functions  (fpath ==> function path)
+fpath=(                                  \
+        ${ZDOTDIR:-$HOME}/functions      \
+        /usr/local/share/zsh-completions \
+        ${fpath}                         \
+      )
 
-# ssh helper
-alias ssh-x='ssh -o CompressionLevel=9 -c arcfour,blowfish-cbc -YC'
+export LESS="-r -F"
 
-# makes easy to initiate iPython
-alias py='ipython'
+## define default path completion
+setopt auto_cd
+cdpath=(${HOME}/Projects)
 
-# macOS
-alias qlf='qlmanage -p "$@" > /dev/null 2>&1'
+## default editor
+export EDITOR='nvim'
+VISUAL=${EDITOR}
+
+## default language for shell
+LC_ALL=en_US.UTF-8
+LANG=en_US.UTF-8
+
+## make colors better for dark terminals
+export CLICOLOR=1
+export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
+
+## make grep use colors
+export GREP_OPTIONS='--color'
+
+## make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
+
+## load extra zsh-highlight modules
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
+
+## Kill the lag on vim mode when pressing <ESC>
+export KEYTIMEOUT=1
+
 
 
 # # --------------------------------------------------------------------
@@ -141,64 +206,184 @@ function gpg_decrypt {
 
 # Returns whether the given command is executable or aliased.
 function _has {
-	return $( whence $1 >/dev/null )
+    return $( whence $1 >/dev/null )
 }
 
+# Split iTerm2 pannel horizontally
+function iterm_split_horizontal { osascript >/dev/null 2>&1 <<-eof
+  tell application "iTerm2"
+    tell current session of current window
+      split horizontally with same profile
+    end tell
+  end tell
+eof
+}
+zle -N iterm_split_horizontal
+
+# Split iTerm2 pannel vertically
+function iterm_split_vertical { osascript >/dev/null 2>&1 <<-eof
+  tell application "iTerm2"
+    tell current session of current window
+      split vertically with same profile
+    end tell
+  end tell
+eof
+}
+zle -N iterm_split_vertical
+
+# Navigate to Split pannel on the left
+function iterm_go_split_left {
+    osascript -e 'tell application "System Events" to tell process "iTerm2" to click menu item "Select Pane Left" of menu 1 of menu item "Select Split Pane" of menu 1 of menu bar item "Window" of menu bar 1' > /dev/null 2>&1
+}
+zle -N iterm_go_split_left
+
+# Navigate to Split pannel on the right
+function iterm_go_split_right {
+    osascript -e 'tell application "System Events" to tell process "iTerm2" to click menu item "Select Pane Right" of menu 1 of menu item "Select Split Pane" of menu 1 of menu bar item "Window" of menu bar 1' > /dev/null 2>&1
+}
+zle -N iterm_go_split_right
+
+# Navigate to Split pannel up
+function iterm_go_split_up {
+    osascript -e 'tell application "System Events" to tell process "iTerm2" to click menu item "Select Pane Above" of menu 1 of menu item "Select Split Pane" of menu 1 of menu bar item "Window" of menu bar 1' > /dev/null 2>&1
+}
+zle -N iterm_go_split_up
+
+# Navigate to Split pannel down
+function iterm_go_split_down {
+    osascript -e 'tell application "System Events" to tell process "iTerm2" to click menu item "Select Pane Below" of menu 1 of menu item "Select Split Pane" of menu 1 of menu bar item "Window" of menu bar 1' > /dev/null 2>&1
+}
+zle -N iterm_go_split_down
+
+# Insert last word wrapper for vicmd
+function vi-insert-last-word {
+    zle vi-insert
+    zle vi-forward-char
+    zle insert-last-word
+}
+zle -N vi-insert-last-word
+
+# Clear screen wrapper for vicmd
+function vi-clear-screen {
+   zle clear-screen
+   zle vi-insert
+}
+zle -N vi-clear-screen
+
+# GIT FZF integration
+# -------------------
+
+# A helper function to join multi-line output from fzf
+join-lines() {
+  local item
+  while read item; do
+    echo -n "${(q)item} "
+  done
+}
+
+is_in_git_repo() {
+  git rev-parse HEAD > /dev/null 2>&1
+}
+
+# Search for Git [F]iles
+function fzf-gf-widget {
+    if is_in_git_repo; then
+        LBUFFER+=$(git -c color.status=always status --short |
+                   fzf -m \
+                       --ansi \
+                       --nth 2..,.. \
+                       --preview '(git diff --color=always -- {-1} | sed 1,4d; cat {-1}) | head -500' |
+                   cut -c4- |
+                   sed 's/.* -> //' |
+           join-lines)
+    fi
+    zle reset-prompt
+}
+zle -N fzf-gf-widget
+
+# Search for Git [B]ranches
+function fzf-gb-widget {
+    if is_in_git_repo; then
+        LBUFFER+=$(git branch -a --color=always |
+                   grep -v '/HEAD\s' |
+                   sort |
+                   fzf --ansi \
+                       --multi \
+                       --tac \
+                       --preview-window right:70% \
+                       --preview 'git log --oneline --graph --date=short --color=always --pretty="format:%C(auto)%cd %h%d %s" $(sed s/^..// <<< {} | cut -d" " -f1) | head -'$LINES |
+                   sed 's/^..//' | cut -d' ' -f1 |
+                   sed 's#^remotes/##' |
+                   join-lines)
+    fi
+    zle reset-prompt
+}
+zle -N fzf-gb-widget
+
+# Search for Git [T]ags
+function fzf-gt-widget {
+    if is_in_git_repo; then
+        LBUFFER+=$(git tag --sort -version:refname |
+                   fzf --multi \
+                       --preview-window right:70% \
+                       --preview 'git show --color=always {} | head -'$LINES |
+           join-lines)
+    fi
+    zle reset-prompt
+}
+zle -N fzf-gt-widget
+
+# Search for Git [H]ash commits
+function fzf-gh-widget {
+    if is_in_git_repo; then
+        LBUFFER+=$(git log --date=short --format="%C(green)%C(bold)%cd %C(auto)%h%d %s (%an)" --graph --color=always |
+                   fzf --ansi \
+                       --no-sort \
+                       --reverse \
+                       --multi \
+                       --bind 'ctrl-s:toggle-sort' \
+                       --header 'Press CTRL-S to toggle sort' \
+                       --preview 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git show --color=always | head -'$LINES |
+                   grep -o "[a-f0-9]\{7,\}" |
+                   join-lines)
+    fi
+    zle reset-prompt
+}
+zle -N fzf-gh-widget
+
+# Search Git [R]emotes
+function fzf-gr-widget {
+    if is_in_git_repo; then
+        LBUFFER+=$(git remote -v |
+                   awk '{print $1 "\t" $2}' |
+                   uniq |
+                   fzf --tac \
+                       --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {1} | head -200' |
+                   cut -d$'\t' -f1 |
+                   join-lines)
+    fi
+    zle reset-prompt
+}
+zle -N fzf-gr-widget
+
+function explain-this {
+    local cmd="${LBUFFER}${RBUFFER}"
+    open "http://explainshell.com/explain?cmd=${cmd/ /+}"
+}
+zle -N explain-this
+
 
 # # --------------------------------------------------------------------
-# # 4. Environment Options
+# # 4. Applications
 # # --------------------------------------------------------------------
-## turn options on
-setopt \
-    append_history       \
-    hist_ignore_all_dups \
-    hist_ignore_space    \
-    auto_cd              \
-    extended_glob        \
-    nomatch              \
-    notify               \
-    correct              \
-    interactive_comments \
-    complete_in_word     \
-    always_to_end        \
-    auto_list            \
-    auto_menu
 
-## turn options off
-unsetopt \
-    beep \
-    flowcontrol \
-    menucomplete
-
-## history settins
-HISTSIZE=100000
-# cache directory
-if [ ! -d ${ZDOTDIR:-$HOME}/cache ]; then
-    mkdir -p ${ZDOTDIR:-$HOME}/cache
-fi
-HISTFILE=${ZDOTDIR:-$HOME}/cache/history
-SAVEHIST=${HISTSIZE}
-
-## Java
-export JAVA_HOME=$(/usr/libexec/java_home)
-
-## android home
-export ANDROID_HOME="/usr/local/share/android-sdk"
-export ANDROID_SDK_ROOT=${ANDROID_HOME}
-
-# user binaries
-if [ ! -d ${USER_BIN} ]; then
-    mkdir -p ${USER_BIN}
-fi
-
+# Homebrew
 ## fix paths
 BREW_PATH="`/usr/local/bin/brew --prefix`"
-# make user binaries a priority
-PATH=${USER_BIN}:${PATH}
-# add Homebrew to path
+## make user binaries a priority
+PATH=${USERBINDIR}:${PATH}
+## add Homebrew to path
 PATH=${PATH}:${BREW_PATH}/share/npm/bin:${BREW_PATH}/opt/sqlite/bin:${BREW_PATH}/sbin
-# add Android to path
-PATH=${PATH}:${ANDROID_SDK_ROOT}/tools:${ANDROID_SDK_ROOT}/platform-tools
 ## fix man paths
 if [ -z ${MANPATH} ]; then
     MANPATH=${BREW_PATH}/share/man:${MANPATH}
@@ -208,57 +393,106 @@ fi
 export PATH
 export MANPATH
 unset BREW_PATH
-
+## Allow apps to be installed on the /Applications directory
 HOMEBREW_CASK_OPTS="--appdir=/Applications"
-
-# search path for zsh functions  (fpath ==> function path)
-fpath=(                                  \
-        ${ZDOTDIR:-$HOME}/functions      \
-        /usr/local/share/zsh-completions \
-        ${fpath}                         \
-      )
-
-export LESS="-r -F"
-
-## define default path completion
-setopt auto_cd
-cdpath=(${HOME}/Projects/personal ${HOME}/Depot/Dropbox/Documents/OrgMode ${HOME}/Depot)
-
-## default editor
-export EDITOR='vim'
-VISUAL=${EDITOR}
-
-## default language for shell
-LC_ALL=en_US.UTF-8
-LANG=en_US.UTF-8
-
-## doxygen home
-DOXYGEN_PATH=`brew --prefix`'/bin/doxygen'
-
-## make colors better for dark terminals
-export CLICOLOR=1
-export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
-
-## make grep use colors
-export GREP_OPTIONS='--color'
-
-## make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
-
-## load extra zsh-highlight modules
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
-
 ## Homebrew help location
 HELPDIR=/usr/local/share/zsh/helpfiles
 ## Homebrew helper to allow more API access on Github
 export HOMEBREW_GITHUB_API_TOKEN=$(gpg_decrypt ${ZDOTDIR:-$HOME}/.secrets/github.api.homebrew)
-## Vim access to Github tokens
-export VIM_GITHUB_API_TOKEN=$(gpg_decrypt ${ZDOTDIR:-$HOME}/.secrets/github.api.vim)
+
+# FZF integration
+if _has fzf; then
+    ## fzf + rg + ag configuration
+    if _has rg; then
+        export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
+    elif _has ag; then
+        export FZF_DEFAULT_COMMAND='ag --nocolor -g ""'
+    fi
+
+    if _has fd; then
+        # Use fd (https://github.com/sharkdp/fd) instead of the default find
+        # command for listing path candidates.
+        # - The first argument to the function ($1) is the base path to start traversal
+        # - See the source code (completion.{bash,zsh}) for the details.
+        _fzf_compgen_path() {
+          fd --hidden --follow --exclude ".git" . "$1"
+        }
+
+        # Use fd to generate the list for directory completion
+        _fzf_compgen_dir() {
+          fd --type d --hidden --follow --exclude ".git" . "$1"
+        }
+    fi
+
+    PREVIEW_CMD="[[ $(file --mime {}) =~ binary ]] && echo {} is a binary file ||
+                 (bat --style=numbers,changes --color=always {} ||
+                 highlight -O ansi -l {} ||
+                 coderay {} ||
+                 rougify {} ||
+                 cat {}) 2> /dev/null || head -500"
+
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"
+    # Options to fzf command
+    export FZF_DEFAULT_OPTS='
+           --filepath-word
+           --border
+           --height=45%
+           --layout=reverse
+           --inline-info
+           --prompt=" "
+           --color gutter:-1
+           --preview "[[ $(file --mime {}) =~ binary ]] && file -F \" is\" --mime {} ||
+                   (bat --style=numbers,changes --color=always {} ||
+                   highlight -O ansi -l {} ||
+                   coderay {} ||
+                   rougify {} ||
+                   cat {}) 2> /dev/null || head -500"
+           --preview-window=right:60%:hidden
+           --bind "ctrl-space:toggle-preview"
+           '
+
+    if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
+        source /usr/local/opt/fzf/shell/key-bindings.zsh
+        source /usr/local/opt/fzf/shell/completion.zsh
+    fi
+fi
+
+# VirtualEnvWrapper
+export WORKON_HOME=$CONFIGDIR/python/virtualenvs
+export VIRTUALENVWRAPPER_HOOK_DIR=$CONFIGDIR/python/hooks
+export PROJECT_HOME=$HOME/Projects
+export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
+export VIRTUALENVWRAPPER_SCRIPT=/usr/local/bin/virtualenvwrapper.sh
+export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--no-site-packages'
+source /usr/local/bin/virtualenvwrapper_lazy.sh
 
 
 
 # # --------------------------------------------------------------------
-# # 5. Promp Appearances
+# # 5. Define color variables
+# # --------------------------------------------------------------------
+# Note: options -U and -z do the following:
+# -U: prevent any alias from being resolved. This means that if you
+#     created an alias called 'ls', during the load of the function
+#     if the 'ls' command is used, the alias will not be used.
+# -z: make sure you're executing in zsh mode.
+autoload -Uz colors zsh/terminfo
+if [[ "${terminfo[colors]}" -ge 8 ]]; then
+    colors
+fi
+
+for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE BLACK; do
+    eval PR_${color}='%{${terminfo[bold]}${fg[${(L)color}]}%}'
+    eval PR_LIGHT_${color}='%{${fg[${(L)color}]}%}'
+    (( count = ${count} + 1 ))
+done
+PR_NO_COLOR="%{${terminfo[sgr0]}%}"
+
+
+
+# # --------------------------------------------------------------------
+# # 6. Promp Appearances
 # # --------------------------------------------------------------------
 autoload -Uz promptinit && promptinit
 
@@ -266,16 +500,18 @@ PROMPT="[${PR_GREEN}%n${PR_NO_COLOR}: ${PR_BLUE}%1c${PR_NO_COLOR}]%(!.#.$) " # m
 PROMPT2="${PR_BLACK}%_${PR_NO_COLOR}> " # command continuation prompt
 # right side prompt
 SPROMPT="Correct ${PR_RED}%R${PR_NO_COLOR} to ${PR_GREEN}%r${PR_NO_COLOR}? (Yes, No, Abort, Edit) " # correction prompt
+RPS1='${MODE_INDICATOR_PROMPT}'
 
 PURE_CMD_MAX_EXEC_TIME=10
 PURE_GIT_UNTRACKED_DIRTY=0
 prompt pure
 
 
+
 # # --------------------------------------------------------------------
-# # 6. Command Completion
+# # 7. Command Completion
 # # --------------------------------------------------------------------
-zstyle :compinstall filename '/Users/thiagoa/.zshrc'
+zstyle :compinstall filename '/Users/thiagoa/.config/zsh/.zshrc'
 autoload -Uz compinit
 compinit
 #
@@ -284,7 +520,7 @@ zmodload -i zsh/complist
 
 ## Enables cache for auto-completion (according to Portage)
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ${ZDOTDIR:-$HOME}/cache
+zstyle ':completion:*' cache-path ${ZSH_CACHE_DIR}
 
 ## Ignore completion functions for commands you don’t have:
 zstyle ':completion:*:functions' ignored-patterns '_*'
@@ -329,15 +565,87 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|[._-]=* r:|=*'
 autoload -Uz bashcompinit
 bashcompinit
 
+
+
 # # --------------------------------------------------------------------
-# # 7. Key Bindings (must be one of the last things in the config)
+# # 8. Aliases
+# # --------------------------------------------------------------------
+## file extension association
+alias -s html="open"
+
+## global aliases
+alias -g ...='../..'
+alias -g ....='../../..'
+alias -g .....='../../../..'
+alias -g NUL="> /dev/null 2>&1"
+alias -g C='| wc -l'
+
+## command aliases
+# alias ls='ls -F'
+alias ll='ls -l'
+alias la='ls -A'
+alias lla='ls -Al'
+alias rm='rm -i'
+alias h='history 1 -1'
+alias pgrep='pgrep -lf' # long output, match against full args list
+alias ccat='colorize_via_pygmentize'
+alias em='emacs -nw'
+alias lcat='logcat-color'
+
+## git aliases
+alias gst='git status --short'
+alias gu='git pull'
+alias gp='git push'
+alias gd='git vimdiff'
+alias gdf='git diff --name-only'
+alias gc='git commit -v'
+alias gca='git commit -v -a'
+alias gb='git branch'
+alias gba='git branch -a'
+alias grv='git remote -v'
+alias gl='git l'
+
+# notification center
+alias notify='/Applications/Terminal\ Notifier.app/Contents/MacOS/terminal-notifier'
+
+# access help online
+unalias run-help
+autoload -Uz run-help
+HELPDIR=/usr/local/share/zsh/help
+
+# ssh helper
+alias ssh-x='ssh -o CompressionLevel=9 -c arcfour,blowfish-cbc -YC'
+
+# makes easy to initiate iPython
+alias py='ipython'
+
+# macOS
+alias qlf='qlmanage -p "$@" > /dev/null 2>&1'
+
+# NeoVim
+alias vim='nvim'
+alias vi='nvim'
+
+# AWS CLI
+alias awsp='aws --profile personal'
+
+
+# # --------------------------------------------------------------------
+# # 9. Key Bindings (must be one of the last things in the config)
 # # --------------------------------------------------------------------
 ## remove unwanted bindings
 ## since we're using vi key binding we should turn off any bind that
 ## uses <Est> as the first key
+bindkey -v
 bindkey -r '^[/'
 bindkey -r '^[,'
 bindkey -r '^[~'
+bindkey -r '^r'
+bindkey -r '^h'
+bindkey -r '^l'
+bindkey -r '^j'
+bindkey -r '^k'
+bindkey -r '^g'
 
 ## create a zkbd compatible hash;
 ## to add other keys to this hash, see: man 5 terminfo
@@ -370,63 +678,13 @@ unset k
 [[ -n "${key[Right]}"   ]]  && bindkey  "${key[Right]}"   forward-char
 
 ## some extra bindings
-bindkey -M viins '^r' history-incremental-search-backward
-bindkey -M vicmd '^r' history-incremental-search-backward
-bindkey -M viins '^p' history-incremental-search-forward
-bindkey -M vicmd '^p' history-incremental-search-forward
-
-# # --------------------------------------------------------------------
-# # 8. Plugins
-# # --------------------------------------------------------------------
-
-# FZF integration
-if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
-    source /usr/local/opt/fzf/shell/key-bindings.zsh
-    source /usr/local/opt/fzf/shell/completion.zsh
-fi
-
-# fzf + ag configuration
-if _has fzf && _has ag; then
-	export FZF_DEFAULT_COMMAND='ag --nocolor -g ""'
-	export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-	export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"
-	export FZF_DEFAULT_OPTS='
-	--color fg:242,bg:236,hl:65,fg+:15,bg+:239,hl+:108
-	--color info:108,prompt:109,spinner:108,pointer:168,marker:168
-	'
-fi
-
-# ZPlug session
-# Use this place to add all your "automagically installed" plugins.
-export ZPLUG_HOME=/usr/local/opt/zplug
-source ${ZPLUG_HOME}/init.zsh
-
-zplug "${ZDOTDIR:-$HOME}",                      from:local,                use:'plugins/*.plugin.*'
-if [ -d ${ZDOTDIR:-$HOME}/work ]; then
-    zplug "${ZDOTDIR:-$HOME}/work",             from:local,                use:'plugins/*.plugin.*'
-fi
-zplug "supercrabtree/k"
-zplug "zsh-users/zsh-autosuggestions"
-zplug "zdharma/fast-syntax-highlighting"
-zplug "gmatheu/shell-plugins",                                                      use:'explain-shell/*.zsh'
-zplug "plugins/colored-man-pages",              from:oh-my-zsh, as:plugin
-zplug "plugins/colorize",                       from:oh-my-zsh, as:plugin
-zplug "plugins/command-not-found",              from:oh-my-zsh, as:plugin
-zplug "plugins/vi-mode",                        from:oh-my-zsh, as:plugin
-zplug "zsh-users/zsh-history-substring-search",                            defer:3
-zplug "b4b4r07/enhancd",                                                            use:init.sh
-
-# Install plugins if there are plugins that have not been installed
-if ! zplug check --verbose; then
-    printf "Install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
-fi
-
-zplug load
-
-# Plugins configuration
+bindkey '^r' fzf-history-widget
+bindkey -M viins '^r' fzf-history-widget
+bindkey -M vicmd '^r' fzf-history-widget
+bindkey -M viins '^p' history-substring-search-up
+bindkey -M vicmd '^p' history-substring-search-up
+bindkey -M vicmd '?' fzf-history-widget
+bindkey -M vicmd '/' fzf-history-widget
 
 # History Substring Search Configuration
 # bind UP and DOWN arrow keys
@@ -442,18 +700,35 @@ bindkey -M emacs '^N' history-substring-search-down
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
-HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='bg=none,fg=yellow,bold'
-HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='bg=none,fg=red,bold'
-HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS='l'
-
 # we have to bind our key to clear-scree because other plugins might have
 # overwriten it
 bindkey '\e,' clear-screen
 bindkey '\e.' insert-last-word
+bindkey -M vicmd '.' vi-insert-last-word
+bindkey -M vicmd ',' vi-clear-screen
 
 # complete current sugestion with Ctrl+Space
 bindkey '^ ' autosuggest-accept
 
-# End of Plugins
+bindkey '^xv' iterm_split_vertical
+bindkey '^x^v' iterm_split_vertical
+bindkey '^xs' iterm_split_horizontal
+bindkey '^x^s' iterm_split_horizontal
+bindkey '^h' iterm_go_split_left
+bindkey '^l' iterm_go_split_right
+bindkey '^j' iterm_go_split_down
+bindkey '^k' iterm_go_split_up
+bindkey '^x.' explain-this
 
-ensure_tmux_is_running
+bindkey -M vicmd "^V" edit-command-line
+
+debug-widget() LBUFFER+=$(_gt)
+zle -N debug-widget
+
+bindkey '\er' redraw-current-line
+bindkey '^G^F' fzf-gf-widget
+bindkey '^G^B' fzf-gb-widget
+bindkey '^G^T' fzf-gt-widget
+bindkey '^G^H' fzf-gh-widget
+bindkey '^G^R' fzf-gr-widget
+bindkey '^G^G' debug-widget
