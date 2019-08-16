@@ -581,7 +581,9 @@ alias -g NUL="> /dev/null 2>&1"
 alias -g C='| wc -l'
 
 ## command aliases
-# alias ls='ls -F'
+if [ "$(uname 2> /dev/null)" = "Linux" ]; then
+    alias ls='ls -F --color=auto'
+fi
 alias ll='ls -l'
 alias la='ls -A'
 alias lla='ls -Al'
