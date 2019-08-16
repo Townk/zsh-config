@@ -410,6 +410,9 @@ if [[ -a /usr/local/bin/brew ]]; then
 fi
 
 # FZF integration
+if [[ -a ~/.fzf.zsh ]]; then
+    source ~/.fzf.zsh
+fi
 if _has fzf; then
     ## fzf + rg + ag configuration
     if _has rg; then
