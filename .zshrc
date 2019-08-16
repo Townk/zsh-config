@@ -153,9 +153,6 @@ LANG=en_US.UTF-8
 export CLICOLOR=1
 export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
 
-## make grep use colors
-export GREP_OPTIONS='--color'
-
 ## make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
 
@@ -594,6 +591,7 @@ alias pgrep='pgrep -lf' # long output, match against full args list
 alias ccat='colorize_via_pygmentize'
 alias em='emacs -nw'
 alias lcat='logcat-color'
+alias grep='grep --color'
 
 ## git aliases
 alias gst='git status --short'
