@@ -126,14 +126,8 @@ SAVEHIST=${HISTSIZE}
 if [ ! -d ${USERBINDIR} ]; then
     mkdir -p ${USERBINDIR}
 fi
-
-
-# search path for zsh functions  (fpath ==> function path)
-fpath=(                                  \
-        ${ZDOTDIR:-$HOME}/functions      \
-        /usr/local/share/zsh-completions \
-        ${fpath}                         \
-      )
+## make user binaries a priority
+export PATH=${USERBINDIR}:${PATH}
 
 export LESS="-r -F"
 
@@ -381,31 +375,6 @@ zle -N explain-this
 # # 4. Applications
 # # --------------------------------------------------------------------
 
-# Homebrew
-## fix paths
-if [[ -a /usr/local/bin/brew ]]; then
-    BREW_PATH="`/usr/local/bin/brew --prefix`"
-    ## make user binaries a priority
-    PATH=${USERBINDIR}:${PATH}
-    ## add Homebrew to path
-    PATH=${PATH}:${BREW_PATH}/share/npm/bin:${BREW_PATH}/opt/sqlite/bin:${BREW_PATH}/sbin
-    ## fix man paths
-    if [ -z ${MANPATH} ]; then
-        MANPATH=${BREW_PATH}/share/man:${MANPATH}
-    else
-        MANPATH=${BREW_PATH}/share/man
-    fi
-    export PATH
-    export MANPATH
-    unset BREW_PATH
-    ## Allow apps to be installed on the /Applications directory
-    HOMEBREW_CASK_OPTS="--appdir=/Applications"
-    ## Homebrew help location
-    HELPDIR=/usr/local/share/zsh/helpfiles
-    ## Homebrew helper to allow more API access on Github
-    export HOMEBREW_GITHUB_API_TOKEN=$(gpg_decrypt ${ZDOTDIR:-$HOME}/.secrets/github.api.homebrew)
-fi
-
 # FZF integration
 if [[ -a ~/.fzf.zsh ]]; then
     source ~/.fzf.zsh
@@ -570,8 +539,6 @@ bashcompinit
 # # --------------------------------------------------------------------
 # # 8. Aliases
 # # --------------------------------------------------------------------
-## file extension association
-alias -s html="open"
 
 ## global aliases
 alias -g ...='../..'
@@ -581,9 +548,6 @@ alias -g NUL="> /dev/null 2>&1"
 alias -g C='| wc -l'
 
 ## command aliases
-if [ "$(uname 2> /dev/null)" = "Linux" ]; then
-    alias ls='ls -F --color=auto'
-fi
 alias ll='ls -l'
 alias la='ls -A'
 alias lla='ls -Al'
@@ -608,9 +572,6 @@ alias gba='git branch -a'
 alias grv='git remote -v'
 alias gl='git l'
 
-# notification center
-alias notify='/Applications/Terminal\ Notifier.app/Contents/MacOS/terminal-notifier'
-
 # access help online
 unalias run-help 2> /dev/null
 autoload -Uz run-help
@@ -621,9 +582,6 @@ alias ssh-x='ssh -o CompressionLevel=9 -c arcfour,blowfish-cbc -YC'
 
 # makes easy to initiate iPython
 alias py='ipython'
-
-# macOS
-alias qlf='qlmanage -p "$@" > /dev/null 2>&1'
 
 # NeoVim
 alias vim='nvim'
@@ -735,3 +693,26 @@ bindkey '^G^T' fzf-gt-widget
 bindkey '^G^H' fzf-gh-widget
 bindkey '^G^R' fzf-gr-widget
 bindkey '^G^G' debug-widget
+
+
+
+# # --------------------------------------------------------------------
+# # 10. System specific overrides
+# # --------------------------------------------------------------------
+SYSTEM_CONFIG="${ZDOTDIR}/config.d"
+
+case "$OSTYPE" in
+  darwin*)
+    SYSTEM_CONFIG="${SYSTEM_CONFIG}/macos.zsh"
+  ;;
+  linux*)
+    SYSTEM_CONFIG="${SYSTEM_CONFIG}/linux.zsh"
+  ;;
+  dragonfly*|freebsd*|netbsd*|openbsd*)
+    SYSTEM_CONFIG="${SYSTEM_CONFIG}/bsd.zsh"
+  ;;
+esac
+
+if [ -f $SYSTEM_CONFIG ]; then
+    source $SYSTEM_CONFIG
+fi  
