@@ -610,8 +610,10 @@ alias ssh-x='ssh -o CompressionLevel=9 -c arcfour,blowfish-cbc -YC'
 alias py='ipython'
 
 # NeoVim
-alias vim='nvim'
-alias vi='nvim'
+if _has nvim; then
+    alias vim='nvim'
+    alias vi='nvim'
+fi
 
 # AWS CLI
 alias awsp='aws --profile personal'
