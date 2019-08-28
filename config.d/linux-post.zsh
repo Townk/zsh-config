@@ -8,7 +8,6 @@
 # # --------------------------------------------------------------------
 # # Contents:
 # # --------
-# # 2. Environment Options
 # # 3. Custom Shell Functions
 # # 4. Applications
 # # 7. Command Completion
@@ -19,13 +18,6 @@
 # Use this file to configure options specific for a Linux system. Notice
 # that not all sessions are listed here. This is on purpose to prevent
 # any override on sessions that were not intended to be overriden.
-
-# # --------------------------------------------------------------------
-# # 2. Environment Options
-# # --------------------------------------------------------------------
-# Environment variables and shell options specific for Linux
-
-
 
 # # --------------------------------------------------------------------
 # # 3. Custom Shell Functions
@@ -52,6 +44,8 @@
 # # 8. Aliases
 # # --------------------------------------------------------------------
 # Aliases specific for Linux
+
+alias ls='ls -F --color=auto'
 
 
 
