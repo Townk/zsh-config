@@ -82,8 +82,34 @@ MODE_INDICATOR_VISUAL='%K{#6699cc} %F{#2d2f37}VISUAL%f %k'
 MODE_INDICATOR_VLINE='%K{#5985b2} %F{#2c4259}V-LINE%f %k'
 
 
+
 # # --------------------------------------------------------------------
-# # 2. Environment Options
+# # 2. System specific pre-configuration
+# # --------------------------------------------------------------------
+SYSTEM_CONFIG="${ZDOTDIR}/config.d"
+SYSTEM_CONFIG_PRE_SUFFIX="-pre.zsh"
+SYSTEM_CONFIG_POST_SUFFIX="-post.zsh"
+
+case "$OSTYPE" in
+  darwin*)
+    SYSTEM_CONFIG="${SYSTEM_CONFIG}/macos"
+  ;;
+  linux*)
+    SYSTEM_CONFIG="${SYSTEM_CONFIG}/linux"
+  ;;
+  dragonfly*|freebsd*|netbsd*|openbsd*)
+    SYSTEM_CONFIG="${SYSTEM_CONFIG}/bsd"
+  ;;
+esac
+
+if [ -f "${SYSTEM_CONFIG}${SYSTEM_CONFIG_PRE_SUFFIX}" ]; then
+    source "${SYSTEM_CONFIG}${SYSTEM_CONFIG_PRE_SUFFIX}"
+fi  
+
+
+
+# # --------------------------------------------------------------------
+# # 3. Environment Options
 # # --------------------------------------------------------------------
 ## turn options on
 setopt \
@@ -159,7 +185,7 @@ export KEYTIMEOUT=1
 
 
 # # --------------------------------------------------------------------
-# # 3. Custom Shell Functions
+# # 4. Custom Shell Functions
 # # --------------------------------------------------------------------
 
 ## enable setenv() for csh compatibility
@@ -372,7 +398,7 @@ zle -N explain-this
 
 
 # # --------------------------------------------------------------------
-# # 4. Applications
+# # 5. Applications
 # # --------------------------------------------------------------------
 
 # FZF integration
@@ -461,7 +487,7 @@ PR_NO_COLOR="%{${terminfo[sgr0]}%}"
 
 
 # # --------------------------------------------------------------------
-# # 6. Promp Appearances
+# # 7. Promp Appearances
 # # --------------------------------------------------------------------
 autoload -Uz promptinit && promptinit
 
@@ -478,7 +504,7 @@ prompt pure
 
 
 # # --------------------------------------------------------------------
-# # 7. Command Completion
+# # 8. Command Completion
 # # --------------------------------------------------------------------
 zstyle :compinstall filename '/Users/thiagoa/.config/zsh/.zshrc'
 autoload -Uz compinit
@@ -537,7 +563,7 @@ bashcompinit
 
 
 # # --------------------------------------------------------------------
-# # 8. Aliases
+# # 9. Aliases
 # # --------------------------------------------------------------------
 
 ## global aliases
@@ -592,7 +618,7 @@ alias awsp='aws --profile personal'
 
 
 # # --------------------------------------------------------------------
-# # 9. Key Bindings (must be one of the last things in the config)
+# # 10. Key Bindings (must be one of the last things in the config)
 # # --------------------------------------------------------------------
 ## remove unwanted bindings
 ## since we're using vi key binding we should turn off any bind that
@@ -697,22 +723,8 @@ bindkey '^G^G' debug-widget
 
 
 # # --------------------------------------------------------------------
-# # 10. System specific overrides
+# # 11. System specific post-configuration (overrides)
 # # --------------------------------------------------------------------
-SYSTEM_CONFIG="${ZDOTDIR}/config.d"
-
-case "$OSTYPE" in
-  darwin*)
-    SYSTEM_CONFIG="${SYSTEM_CONFIG}/macos.zsh"
-  ;;
-  linux*)
-    SYSTEM_CONFIG="${SYSTEM_CONFIG}/linux.zsh"
-  ;;
-  dragonfly*|freebsd*|netbsd*|openbsd*)
-    SYSTEM_CONFIG="${SYSTEM_CONFIG}/bsd.zsh"
-  ;;
-esac
-
-if [ -f $SYSTEM_CONFIG ]; then
-    source $SYSTEM_CONFIG
+if [ -f "${SYSTEM_CONFIG}${SYSTEM_CONFIG_POST_SUFFIX}" ]; then
+    source "${SYSTEM_CONFIG}${SYSTEM_CONFIG_POST_SUFFIX}"
 fi  
