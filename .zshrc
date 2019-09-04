@@ -8,15 +8,17 @@
 # # --------------------------------------------------------------------
 # # Contents:
 # # --------
-# # 1. Plugins
-# # 2. Environment Options
-# # 3. Custom Shell Functions
-# # 4. Applications
-# # 5. Define color variables
-# # 6. Promp Appearances
-# # 7. Command Completion
-# # 8. Aliases
-# # 9. Key Bindings
+# #  1. Plugins
+# #  2. System specific pre-configuration
+# #  3. Environment Options
+# #  4. Custom Shell Functions
+# #  5. Applications
+# #  6. Define color variables
+# #  7. Promp Appearances
+# #  8. Command Completion
+# #  9. Aliases
+# # 10. Key Bindings
+# # 11. System specific post-configuration
 # # --------------------------------------------------------------------
 
 
@@ -27,26 +29,34 @@
 # want. After that any configuration we do will overrite the plugin
 # defaults.
 
+# Make sure that the user local target is available
+mkdir -p ${HOME}/.local/{bin,opt,var,share/zsh}
+mkdir -p ${HOME}/.local/share/zsh/{plugins,functions}
+
+# for func in ${ZDOTDIR:-$HOME}/functions/core/*.; do
+# done
+
 # iTerm 2 Integration
 test -e "${ITERMDIR}/shell_integration.zsh" && source "${ITERMDIR}/shell_integration.zsh"
 
 # ZPlug session
 # Use this place to add all your "automagically installed" plugins.
-export ZSH_CACHE_DIR=${ZDOTDIR:-$HOME}/cache
-if [ ! -d /usr/local/opt/zplug ]; then
-    export ZPLUG_HOME=${HOME}/.config/zplug
-    if [ ! -d ${ZPLUG_HOME} ]; then
-        curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
-    fi
-else
+export ENHANCD_DIR="${HOME}/.local/var/enhancd"
+export ZSH_CACHE_DIR=${HOME}/.local/var/zsh/cache
+
+if [ -d ${HOME}/.local/opt/zplug ]; then
+    export ZPLUG_HOME=${HOME}/.local/opt/zplug
+elif [ -d /usr/local/opt/zplug ]; then
     export ZPLUG_HOME=/usr/local/opt/zplug
+else
+    export ZPLUG_HOME=${HOME}/.local/opt/zplug
+fi
+
+if [ ! -d ${ZPLUG_HOME} ]; then
+    mkdir -p ${ZPLUG_HOME}
+    curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
 fi
 source ${ZPLUG_HOME}/init.zsh
-
-zplug "${ZDOTDIR:-$HOME}",                      from:local,                use:'plugins/*.plugin.*'
-if [ -d ${ZDOTDIR:-$HOME}/work ]; then
-    zplug "${ZDOTDIR:-$HOME}/work",             from:local,                use:'plugins/*.plugin.*'
-fi
 
 zplug "softmoth/zsh-vim-mode"
 zplug "zsh-users/zsh-autosuggestions",          defer:2
@@ -56,6 +66,9 @@ zplug "gmatheu/shell-plugins",                  use:'explain-shell/*.zsh', defer
 zplug "b4b4r07/enhancd",                        use:init.sh, defer:2
 zplug "zsh-users/zsh-history-substring-search", defer:3
 zplug "plugins/colored-man-pages",              from:oh-my-zsh, as:plugin, defer:2
+zplug "${ZDOTDIR:-$HOME}",                      from:local,        use:"plugins/*.plugin.zsh"
+zplug "${HOME}/.local/share/zsh",               from:local,        use:"plugins/*.plugin.zsh"
+
 
 # Install plugins if there are plugins that have not been installed
 if ! zplug check --verbose; then
@@ -86,6 +99,13 @@ MODE_INDICATOR_VLINE='%K{#5985b2} %F{#2c4259}V-LINE%f %k'
 # # --------------------------------------------------------------------
 # # 2. System specific pre-configuration
 # # --------------------------------------------------------------------
+
+fpath=(                                        \
+        ${HOME}/.local/share/zsh/functions      \
+        ${ZDOTDIR:-$HOME}/functions            \
+        "${fpath[@]}"                          \
+      )
+
 SYSTEM_CONFIG="${ZDOTDIR}/config.d"
 SYSTEM_CONFIG_PRE_SUFFIX="-pre.zsh"
 SYSTEM_CONFIG_POST_SUFFIX="-post.zsh"
@@ -159,10 +179,10 @@ export LESS="-r -F"
 
 ## define default path completion
 setopt auto_cd
-cdpath=(${HOME}/Projects)
+cdpath=(${HOME}/workspaces)
 
 ## default editor
-export EDITOR='nvim'
+export EDITOR='emacs -nw'
 VISUAL=${EDITOR}
 
 ## default language for shell
@@ -173,8 +193,9 @@ LANG=en_US.UTF-8
 export CLICOLOR=1
 export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
 
-## make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
+## make less more friendly for non-text input files, see lesspipe(1) [ -x
+export LESSOPEN="|lesspipe %s"
+export LESSCLOSE="lesspipe %s %s"
 
 ## load extra zsh-highlight modules
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
@@ -294,173 +315,11 @@ function vi-clear-screen {
 }
 zle -N vi-clear-screen
 
-# GIT FZF integration
-# -------------------
-
-# A helper function to join multi-line output from fzf
-join-lines() {
-  local item
-  while read item; do
-    echo -n "${(q)item} "
-  done
-}
-
-is_in_git_repo() {
-  git rev-parse HEAD > /dev/null 2>&1
-}
-
-# Search for Git [F]iles
-function fzf-gf-widget {
-    if is_in_git_repo; then
-        LBUFFER+=$(git -c color.status=always status --short |
-                   fzf -m \
-                       --ansi \
-                       --nth 2..,.. \
-                       --preview '(git diff --color=always -- {-1} | sed 1,4d; cat {-1}) | head -500' |
-                   cut -c4- |
-                   sed 's/.* -> //' |
-           join-lines)
-    fi
-    zle reset-prompt
-}
-zle -N fzf-gf-widget
-
-# Search for Git [B]ranches
-function fzf-gb-widget {
-    if is_in_git_repo; then
-        LBUFFER+=$(git branch -a --color=always |
-                   grep -v '/HEAD\s' |
-                   sort |
-                   fzf --ansi \
-                       --multi \
-                       --tac \
-                       --preview-window right:70% \
-                       --preview 'git log --oneline --graph --date=short --color=always --pretty="format:%C(auto)%cd %h%d %s" $(sed s/^..// <<< {} | cut -d" " -f1) | head -'$LINES |
-                   sed 's/^..//' | cut -d' ' -f1 |
-                   sed 's#^remotes/##' |
-                   join-lines)
-    fi
-    zle reset-prompt
-}
-zle -N fzf-gb-widget
-
-# Search for Git [T]ags
-function fzf-gt-widget {
-    if is_in_git_repo; then
-        LBUFFER+=$(git tag --sort -version:refname |
-                   fzf --multi \
-                       --preview-window right:70% \
-                       --preview 'git show --color=always {} | head -'$LINES |
-           join-lines)
-    fi
-    zle reset-prompt
-}
-zle -N fzf-gt-widget
-
-# Search for Git [H]ash commits
-function fzf-gh-widget {
-    if is_in_git_repo; then
-        LBUFFER+=$(git log --date=short --format="%C(green)%C(bold)%cd %C(auto)%h%d %s (%an)" --graph --color=always |
-                   fzf --ansi \
-                       --no-sort \
-                       --reverse \
-                       --multi \
-                       --bind 'ctrl-s:toggle-sort' \
-                       --header 'Press CTRL-S to toggle sort' \
-                       --preview 'grep -o "[a-f0-9]\{7,\}" <<< {} | xargs git show --color=always | head -'$LINES |
-                   grep -o "[a-f0-9]\{7,\}" |
-                   join-lines)
-    fi
-    zle reset-prompt
-}
-zle -N fzf-gh-widget
-
-# Search Git [R]emotes
-function fzf-gr-widget {
-    if is_in_git_repo; then
-        LBUFFER+=$(git remote -v |
-                   awk '{print $1 "\t" $2}' |
-                   uniq |
-                   fzf --tac \
-                       --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {1} | head -200' |
-                   cut -d$'\t' -f1 |
-                   join-lines)
-    fi
-    zle reset-prompt
-}
-zle -N fzf-gr-widget
-
 function explain-this {
     local cmd="${LBUFFER}${RBUFFER}"
     open "http://explainshell.com/explain?cmd=${cmd/ /+}"
 }
 zle -N explain-this
-
-
-# # --------------------------------------------------------------------
-# # 5. Applications
-# # --------------------------------------------------------------------
-
-# FZF integration
-if [[ -a ~/.fzf.zsh ]]; then
-    source ~/.fzf.zsh
-fi
-if _has fzf; then
-    ## fzf + rg + ag configuration
-    if _has rg; then
-        export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
-    elif _has ag; then
-        export FZF_DEFAULT_COMMAND='ag --nocolor -g ""'
-    fi
-
-    if _has fd; then
-        # Use fd (https://github.com/sharkdp/fd) instead of the default find
-        # command for listing path candidates.
-        # - The first argument to the function ($1) is the base path to start traversal
-        # - See the source code (completion.{bash,zsh}) for the details.
-        _fzf_compgen_path() {
-          fd --hidden --follow --exclude ".git" . "$1"
-        }
-
-        # Use fd to generate the list for directory completion
-        _fzf_compgen_dir() {
-          fd --type d --hidden --follow --exclude ".git" . "$1"
-        }
-    fi
-
-    PREVIEW_CMD="[[ $(file --mime {}) =~ binary ]] && echo {} is a binary file ||
-                 (bat --style=numbers,changes --color=always {} ||
-                 highlight -O ansi -l {} ||
-                 coderay {} ||
-                 rougify {} ||
-                 cat {}) 2> /dev/null || head -500"
-
-    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-    export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"
-    # Options to fzf command
-    export FZF_DEFAULT_OPTS='
-           --filepath-word
-           --border
-           --height=45%
-           --layout=reverse
-           --inline-info
-           --prompt=" "
-           --color gutter:-1
-           --preview "[[ $(file --mime {}) =~ binary ]] && file -F \" is\" --mime {} ||
-                   (bat --style=numbers,changes --color=always {} ||
-                   highlight -O ansi -l {} ||
-                   coderay {} ||
-                   rougify {} ||
-                   cat {}) 2> /dev/null || head -500"
-           --preview-window=right:60%:hidden
-           --bind "ctrl-space:toggle-preview"
-           '
-
-    if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
-        source /usr/local/opt/fzf/shell/key-bindings.zsh
-        source /usr/local/opt/fzf/shell/completion.zsh
-    fi
-fi
 
 
 
@@ -487,7 +346,7 @@ PR_NO_COLOR="%{${terminfo[sgr0]}%}"
 
 
 # # --------------------------------------------------------------------
-# # 7. Promp Appearances
+# # 6. Promp Appearances
 # # --------------------------------------------------------------------
 autoload -Uz promptinit && promptinit
 
@@ -504,7 +363,7 @@ prompt pure
 
 
 # # --------------------------------------------------------------------
-# # 8. Command Completion
+# # 7. Command Completion
 # # --------------------------------------------------------------------
 zstyle :compinstall filename '/Users/thiagoa/.config/zsh/.zshrc'
 autoload -Uz compinit
@@ -563,7 +422,7 @@ bashcompinit
 
 
 # # --------------------------------------------------------------------
-# # 9. Aliases
+# # 8. Aliases
 # # --------------------------------------------------------------------
 
 ## global aliases

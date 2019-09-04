@@ -1,4 +1,4 @@
-# # --------------------------------------------------------------------
+#:q # --------------------------------------------------------------------
 # # Configuration file for Z Shell Specific for macOS system
 # # By: Thiago Alves
 # # Last Update: August, 16 2019
@@ -22,7 +22,6 @@
 
 # search path for zsh functions  (fpath ==> function path)
 fpath=(                                  \
-        ${ZDOTDIR:-$HOME}/functions      \
+        "${fpath[@]}"                    \
         /usr/local/share/zsh-completions \
-        ${fpath}                         \
       )

@@ -22,7 +22,6 @@
 
 # search path for zsh functions  (fpath ==> function path)
 fpath=(                                     \
-        ${ZDOTDIR:-$HOME}/functions         \
+        "${fpath[@]}"                       \
         /usr/local/share/zsh/site-functions \
-        ${fpath}                            \
       )
