@@ -48,14 +48,45 @@ On _macOS_ things are a bit more complicated. The system does not use normal
 Unix artifacts to configure environment variable, and we have to rely on
 whatever _macOS_ provides.
 
-To do so, we have to create a `launchd` script and make sure it is executed when
+To do so, we have to create a `launchctl` script and make sure it is executed when
 we login.
 
 > **Note**: Although this approach works on most of the cases, when you restart
 > the computer and ask it to re-open the opened applications, this `launchd`
-> script will not be run.
+> script will not be run before the OS start your previously opened terminals.
+> In this case, simply restart all your terminals and  everything will work 
+> again.
 
-TBD
+Create a `plist` file (the name you use is not important), add this content to
+it:
+
+``` xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+  <plist version="1.0">
+  <dict>
+  <key>Label</key>
+  <string>zshenv</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/launchctl</string>
+    <string>setenv</string>
+    <string>ZDOTDIR</string>
+    <string>/Users/[your username]/.config/zsh</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>
+```
+
+And save it to `/Library/LaunchAgents/`.
+
+Now you can logout and login again, or load your new script with:
+
+``` sh
+    $ launchctl load /Library/LaunchAgents/myvars.plist
+```
 
 ### Non root or sudo access
 
@@ -64,4 +95,11 @@ just link the `zshenv` file from this repo to `~/.zshenv`:
 
 ``` sh
     $ ln -sf ~/.config/zsh/zshenv ~/.zshenv
+```
+
+Also, if your user has Bash configure to it, you can still get ZSH
+without `sudo`. Link the `profile` file in this repository to `~/.profile`:
+
+``` sh
+    $ ln -sf ~/.config/zsh/profile ~/.profile
 ```
