@@ -33,15 +33,21 @@
 mkdir -p ${HOME}/.local/{bin,opt,var,share/zsh}
 mkdir -p ${HOME}/.local/share/zsh/{plugins,functions}
 
-# for func in ${ZDOTDIR:-$HOME}/functions/core/*.; do
-# done
+## default language for shell
+LC_ALL=en_US.UTF-8
+LANG=en_US.UTF-8
 
 # iTerm 2 Integration
-test -e "${ITERMDIR}/shell_integration.zsh" && source "${ITERMDIR}/shell_integration.zsh"
+if [ ! -f "${ITERMDIR}/shell_integration.zsh" ]; then
+    echo "iTerm2 interation not installed! Dowloading the integration script to ${ITERMDIR}"
+    mkdir -p ${ITERMDIR}
+    curl -L https://iterm2.com/shell_integration/zsh -o ${ITERMDIR}/shell_integration.zsh
+fi
+source "${ITERMDIR}/shell_integration.zsh"
 
 # ZPlug session
 # Use this place to add all your "automagically installed" plugins.
-export ENHANCD_DIR="${HOME}/.local/var/enhancd"
+export ENHANCD_DIR=${HOME}/.local/var/enhancd
 export ZSH_CACHE_DIR=${HOME}/.local/var/zsh/cache
 
 if [ -d ${HOME}/.local/opt/zplug ]; then
@@ -66,6 +72,7 @@ zplug "gmatheu/shell-plugins",                  use:'explain-shell/*.zsh', defer
 zplug "b4b4r07/enhancd",                        use:init.sh, defer:2
 zplug "zsh-users/zsh-history-substring-search", defer:3
 zplug "plugins/colored-man-pages",              from:oh-my-zsh, as:plugin, defer:2
+zplug "hlissner/zsh-autopair",                  defer:2
 zplug "${ZDOTDIR:-$HOME}",                      from:local,        use:"plugins/*.plugin.zsh"
 zplug "${HOME}/.local/share/zsh",               from:local,        use:"plugins/*.plugin.zsh"
 
