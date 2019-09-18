@@ -54,6 +54,8 @@ if [ -d ${HOME}/.local/opt/zplug ]; then
     export ZPLUG_HOME=${HOME}/.local/opt/zplug
 elif [ -d /usr/local/opt/zplug ]; then
     export ZPLUG_HOME=/usr/local/opt/zplug
+elif [ -d /opt/zplug ]; then
+    export ZPLUG_HOME=/opt/zplug
 else
     export ZPLUG_HOME=${HOME}/.local/opt/zplug
 fi
@@ -109,7 +111,7 @@ MODE_INDICATOR_VLINE='%K{#5985b2} %F{#2c4259}V-LINE%f %k'
 # # --------------------------------------------------------------------
 
 fpath=(                                        \
-        ${HOME}/.local/share/zsh/functions      \
+        ${HOME}/.local/share/zsh/functions     \
         ${ZDOTDIR:-$HOME}/functions            \
         "${fpath[@]}"                          \
       )
@@ -211,6 +213,9 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
 ## Kill the lag on vim mode when pressing <ESC>
 export KEYTIMEOUT=1
 
+## Make GnuPG to use XDG configuration dir
+export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
+
 
 
 # # --------------------------------------------------------------------
@@ -237,7 +242,7 @@ function gcd {
 
 function ensure_tmux_is_running {
     if [[ -z "${TMUX}" ]]; then
-        $HOME/.config/tmux/bin/tat
+        $XDG_CONFIG_HOME/tmux/bin/tat
     fi
 }
 
@@ -373,9 +378,9 @@ prompt pure
 # # --------------------------------------------------------------------
 # # 7. Command Completion
 # # --------------------------------------------------------------------
-zstyle :compinstall filename '/Users/thiagoa/.config/zsh/.zshrc'
+zstyle :compinstall filename "${ZDOTDIR}/.zshrc"
 autoload -Uz compinit
-compinit
+compinit -d ${ZSH_CACHE_DIR}/zcompdump
 #
 ## A nice way of adding colour to auto-completion (according to ZshWiki)
 zmodload -i zsh/complist
