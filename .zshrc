@@ -75,6 +75,7 @@ zplug "b4b4r07/enhancd",                        use:init.sh, defer:2
 zplug "zsh-users/zsh-history-substring-search", defer:3
 zplug "plugins/colored-man-pages",              from:oh-my-zsh, as:plugin, defer:2
 zplug "hlissner/zsh-autopair",                  defer:2
+zplug "RobertDeRose/virtualenv-autodetect",     defer:2
 zplug "${ZDOTDIR:-$HOME}",                      from:local,        use:"plugins/*.plugin.zsh"
 zplug "${HOME}/.local/share/zsh",               from:local,        use:"plugins/*.plugin.zsh"
 
