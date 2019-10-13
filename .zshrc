@@ -104,6 +104,7 @@ MODE_INDICATOR_REPLACE='%K{#fc766a} %F{#592925}REPLACE%f %k'
 MODE_INDICATOR_SEARCH='%K{#90c962} %F{#40592b}SEARCH%f %k'
 MODE_INDICATOR_VISUAL='%K{#6699cc} %F{#2d2f37}VISUAL%f %k'
 MODE_INDICATOR_VLINE='%K{#5985b2} %F{#2c4259}V-LINE%f %k'
+ENHANCD_DISABLE_DOT=1
 
 
 
@@ -440,9 +441,6 @@ bashcompinit
 # # --------------------------------------------------------------------
 
 ## global aliases
-alias -g ...='../..'
-alias -g ....='../../..'
-alias -g .....='../../../..'
 alias -g NUL="> /dev/null 2>&1"
 alias -g C='| wc -l'
 
