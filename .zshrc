@@ -215,10 +215,12 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
 ## Kill the lag on vim mode when pressing <ESC>
 export KEYTIMEOUT=1
 
-## Make GnuPG to use XDG configuration dir
-export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
+## Define a place for local installation of tools
+export LOCAL_DIR="${HOME}/.local"
 ## Make sure apps know about `.config`
 export XDG_CONFIG_HOME="${HOME}/.config"
+## Make GnuPG to use XDG configuration dir
+export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
 
 
 
