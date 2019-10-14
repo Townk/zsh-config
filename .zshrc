@@ -217,6 +217,9 @@ export KEYTIMEOUT=1
 
 ## Make GnuPG to use XDG configuration dir
 export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
+## Make sure apps know about `.config`
+export XDG_CONFIG_HOME="${HOME}/.config"
+
 
 
 
