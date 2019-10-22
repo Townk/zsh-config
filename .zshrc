@@ -30,8 +30,8 @@
 # defaults.
 
 # Make sure that the user local target is available
-mkdir -p ${HOME}/.local/{bin,opt,var,share/zsh}
-mkdir -p ${HOME}/.local/share/zsh/{plugins,functions}
+mkdir -p ${USER_LOCAL_HOME}/{bin,opt,var,share/zsh}
+mkdir -p ${USER_LOCAL_HOME}/share/zsh/{plugins,functions}
 
 ## default language for shell
 LC_ALL=en_US.UTF-8
@@ -47,17 +47,17 @@ source "${ITERMDIR}/shell_integration.zsh"
 
 # ZPlug session
 # Use this place to add all your "automagically installed" plugins.
-export ENHANCD_DIR=${HOME}/.local/var/enhancd
-ZSH_CACHE_DIR=${HOME}/.local/var/zsh/cache
+export ENHANCD_DIR=${USER_LOCAL_HOME}/var/enhancd
+ZSH_CACHE_DIR=${USER_LOCAL_HOME}/var/zsh/cache
 
-if [ -d ${HOME}/.local/opt/zplug ]; then
-    export ZPLUG_HOME=${HOME}/.local/opt/zplug
+if [ -d ${USER_LOCAL_HOME}/opt/zplug ]; then
+    export ZPLUG_HOME=${USER_LOCAL_HOME}/opt/zplug
 elif [ -d /usr/local/opt/zplug ]; then
     export ZPLUG_HOME=/usr/local/opt/zplug
 elif [ -d /opt/zplug ]; then
     export ZPLUG_HOME=/opt/zplug
 else
-    export ZPLUG_HOME=${HOME}/.local/opt/zplug
+    export ZPLUG_HOME=${USER_LOCAL_HOME}/opt/zplug
 fi
 
 if [ ! -d ${ZPLUG_HOME} ]; then
@@ -77,7 +77,7 @@ zplug "plugins/colored-man-pages",              from:oh-my-zsh, as:plugin, defer
 zplug "hlissner/zsh-autopair",                  defer:2
 zplug "RobertDeRose/virtualenv-autodetect",     defer:2
 zplug "${ZDOTDIR:-$HOME}",                      from:local,        use:"plugins/*.plugin.zsh"
-zplug "${HOME}/.local/share/zsh",               from:local,        use:"plugins/*.plugin.zsh"
+zplug "${USER_LOCAL_HOME}/share/zsh",           from:local,        use:"plugins/*.plugin.zsh"
 
 
 # Install plugins if there are plugins that have not been installed
@@ -105,7 +105,7 @@ MODE_INDICATOR_SEARCH='%K{#90c962} %F{#40592b}SEARCH%f %k'
 MODE_INDICATOR_VISUAL='%K{#6699cc} %F{#2d2f37}VISUAL%f %k'
 MODE_INDICATOR_VLINE='%K{#5985b2} %F{#2c4259}V-LINE%f %k'
 ENHANCD_DISABLE_DOT=1
-export ZSH_CACHE_DIR=${HOME}/.local/var/zsh/cache
+export ZSH_CACHE_DIR=${USER_LOCAL_HOME}/var/zsh/cache
 
 
 
@@ -114,7 +114,7 @@ export ZSH_CACHE_DIR=${HOME}/.local/var/zsh/cache
 # # --------------------------------------------------------------------
 
 fpath=(                                        \
-        ${HOME}/.local/share/zsh/functions     \
+        ${USER_LOCAL_HOME}/share/zsh/functions \
         ${ZDOTDIR:-$HOME}/functions            \
         "${fpath[@]}"                          \
       )
@@ -181,12 +181,8 @@ fi
 HISTFILE=${ZSH_CACHE_DIR}/history
 SAVEHIST=${HISTSIZE}
 
-# user binaries
-if [ ! -d ${USERBINDIR} ]; then
-    mkdir -p ${USERBINDIR}
-fi
 ## make user binaries a priority
-export PATH=${USERBINDIR}:${PATH}
+export PATH=${USER_LOCAL_HOME}/bin:${PATH}
 
 export LESS="-r -F"
 
@@ -216,28 +212,21 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
 ## Kill the lag on vim mode when pressing <ESC>
 export KEYTIMEOUT=1
 
-## Define a place for local installation of tools
-export LOCAL_DIR="${HOME}/.local"
-## Make sure apps know about `.config`
-export XDG_CONFIG_HOME="${HOME}/.config"
-## Make GnuPG to use XDG configuration dir
-export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
-
 # NodEnv
-export NODENV_ROOT="${LOCAL_DIR}/opt/nodenv"
+export NODENV_ROOT="${USER_LOCAL_HOME}/opt/nodenv"
 eval "$(nodenv init -)"
 # PyEnv
-export PYENV_ROOT="${LOCAL_DIR}/opt/pyenv"
+export PYENV_ROOT="${USER_LOCAL_HOME}/opt/pyenv"
 eval "$(pyenv init -)"
 # JEnv
-export JENV_ROOT="${LOCAL_DIR}/opt/jenv"
+export JENV_ROOT="${USER_LOCAL_HOME}/opt/jenv"
 eval "$(jenv init -)"
 export JAVA_HOME=$(jenv javahome)
 # RBEnv
-export RBENV_ROOT="${LOCAL_DIR}/opt/rbenv"
+export RBENV_ROOT="${USER_LOCAL_HOME}/opt/rbenv"
 eval "$(rbenv init -)"
 # GoEnv
-export GOENV_ROOT="${LOCAL_DIR}/opt/goenv"
+export GOENV_ROOT="${USER_LOCAL_HOME}/opt/goenv"
 eval "$(goenv init -)"
 
 

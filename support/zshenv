@@ -1,8 +1,0 @@
-XDG_CONFIG_HOME=$HOME/.config
-ITERMDIR=$XDG_CONFIG_HOME/iterm2
-ZDOTDIR=$XDG_CONFIG_HOME/zsh
-USERBINDIR=$HOME/.local/bin
-
-if [[ -a $ZDOTDIR/.zshenv ]]; then
-    . $ZDOTDIR/.zshenv
-fi

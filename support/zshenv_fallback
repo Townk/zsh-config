@@ -1,0 +1,3 @@
+if [[ -a $ZDOTDIR/.zshenv ]]; then
+    . $ZDOTDIR/.zshenv
+fi

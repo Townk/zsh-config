@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>environment.setup</string>
+    <key>ProgramArguments</key>
+    <array>
+      <string>sh</string>
+      <string>-c</string>
+      <string>
+        launchctl setenv XDG_CONFIG_HOME ~/.config
+        launchctl setenv ZDOTDIR ~/.config/zsh
+        launchctl setenv TMUXDIR ~/.config/tmux
+        launchctl setenv ITERMDIR ~/.config/iterm2
+        launchctl setenv GNUPGHOME ~/.config/gnupg
+        launchctl setenv USER_LOCAL_HOME ~/.local
+        launchctl setenv JAVA_HOME ~/.local/opt/jenv/versions/1.8
+        launchctl setenv ANDROID_HOME /usr/local/share/android-sdk
+      </string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+  </dict>
+</plist>
