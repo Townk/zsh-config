@@ -1,8 +1,3 @@
-## Make sure apps know about `.config`
-XDG_CONFIG_HOME=$HOME/.config
-
-## Define a place for all ZSH configuration files
-ZDOTDIR=$XDG_CONFIG_HOME/zsh
 ## Define a place for all TMux configuration files
 TMUXDIR=$XDG_CONFIG_HOME/tmux
 ## Define a place for all iTerm2 integration files
