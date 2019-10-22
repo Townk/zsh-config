@@ -48,7 +48,7 @@ source "${ITERMDIR}/shell_integration.zsh"
 # ZPlug session
 # Use this place to add all your "automagically installed" plugins.
 export ENHANCD_DIR=${HOME}/.local/var/enhancd
-export ZSH_CACHE_DIR=${HOME}/.local/var/zsh/cache
+ZSH_CACHE_DIR=${HOME}/.local/var/zsh/cache
 
 if [ -d ${HOME}/.local/opt/zplug ]; then
     export ZPLUG_HOME=${HOME}/.local/opt/zplug
@@ -105,6 +105,7 @@ MODE_INDICATOR_SEARCH='%K{#90c962} %F{#40592b}SEARCH%f %k'
 MODE_INDICATOR_VISUAL='%K{#6699cc} %F{#2d2f37}VISUAL%f %k'
 MODE_INDICATOR_VLINE='%K{#5985b2} %F{#2c4259}V-LINE%f %k'
 ENHANCD_DISABLE_DOT=1
+export ZSH_CACHE_DIR=${HOME}/.local/var/zsh/cache
 
 
 
