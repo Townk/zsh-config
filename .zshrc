@@ -223,6 +223,22 @@ export XDG_CONFIG_HOME="${HOME}/.config"
 ## Make GnuPG to use XDG configuration dir
 export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
 
+# NodEnv
+export NODENV_ROOT="${LOCAL_DIR}/opt/nodenv"
+eval "$(nodenv init -)"
+# PyEnv
+export PYENV_ROOT="${LOCAL_DIR}/opt/pyenv"
+eval "$(pyenv init -)"
+# JEnv
+export JENV_ROOT="${LOCAL_DIR}/opt/jenv"
+eval "$(jenv init -)"
+export JAVA_HOME=$(jenv javahome)
+# RBEnv
+export RBENV_ROOT="${LOCAL_DIR}/opt/rbenv"
+eval "$(rbenv init -)"
+# GoEnv
+export GOENV_ROOT="${LOCAL_DIR}/opt/goenv"
+eval "$(goenv init -)"
 
 
 
