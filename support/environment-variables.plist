@@ -34,12 +34,22 @@
       <string>sh</string>
       <string>-c</string>
       <string>
+        launchctl setenv USER_LOCAL_HOME ~/.local
+
         launchctl setenv XDG_CONFIG_HOME ~/.config
+        launchctl setenv XDG_DATA_HOME ~/.local/share
+        launchctl setenv XDG_RUNTIME_DIR ~/.local/var
+        launchctl setenv XDG_CACHE_HOME ~/.local/var/cache
+        launchctl setenv XDG_LOG_HOME ~/.local/var/log
+        launchctl setenv XDG_PACKAGE_HOME ~/.local/opt
+        launchctl setenv XDG_TEMP_HOME ~/.local/tmp
+
         launchctl setenv ZDOTDIR ~/.config/zsh
         launchctl setenv TMUXDIR ~/.config/tmux
         launchctl setenv ITERMDIR ~/.config/iterm2
         launchctl setenv GNUPGHOME ~/.config/gnupg
-        launchctl setenv USER_LOCAL_HOME ~/.local
+        launchctl setenv HOMEBREW_HOME /usr/local
+
         launchctl setenv JAVA_HOME ~/.local/opt/jenv/versions/1.8
         launchctl setenv ANDROID_HOME /usr/local/share/android-sdk
       </string>

@@ -54,7 +54,7 @@
 # defaults.
 
 # Make sure that the user local target is available
-mkdir -p ${USER_LOCAL_HOME}/{bin,opt,var,share/zsh}
+mkdir -p ${USER_LOCAL_HOME}/{bin,opt,var,share/zsh,tmp}
 mkdir -p ${USER_LOCAL_HOME}/share/zsh/{plugins,functions}
 
 ## default language for shell
@@ -71,17 +71,17 @@ source "${ITERMDIR}/shell_integration.zsh"
 
 # ZPlug session
 # Use this place to add all your "automagically installed" plugins.
-export ENHANCD_DIR=${USER_LOCAL_HOME}/var/enhancd
-ZSH_CACHE_DIR=${USER_LOCAL_HOME}/var/zsh/cache
+export ENHANCD_DIR=${XDG_CACHE_HOME}/enhancd
+ZSH_CACHE_DIR=${XDG_CACHE_HOME}/zsh
 
-if [ -d ${USER_LOCAL_HOME}/opt/zplug ]; then
-    export ZPLUG_HOME=${USER_LOCAL_HOME}/opt/zplug
+if [ -d ${XDG_DATA_HOME}/zplug ]; then
+	export ZPLUG_HOME=${XDG_DATA_HOME}/zplug
 elif [ -d /usr/local/opt/zplug ]; then
     export ZPLUG_HOME=/usr/local/opt/zplug
 elif [ -d /opt/zplug ]; then
     export ZPLUG_HOME=/opt/zplug
 else
-    export ZPLUG_HOME=${USER_LOCAL_HOME}/opt/zplug
+	export ZPLUG_HOME=${XDG_DATA_HOME}/zplug
 fi
 
 if [ ! -d ${ZPLUG_HOME} ]; then
@@ -129,7 +129,7 @@ MODE_INDICATOR_SEARCH='%K{#90c962} %F{#40592b}SEARCH%f %k'
 MODE_INDICATOR_VISUAL='%K{#6699cc} %F{#2d2f37}VISUAL%f %k'
 MODE_INDICATOR_VLINE='%K{#5985b2} %F{#2c4259}V-LINE%f %k'
 ENHANCD_DISABLE_DOT=1
-export ZSH_CACHE_DIR=${USER_LOCAL_HOME}/var/zsh/cache
+export ZSH_CACHE_DIR=${XDG_CACHE_HOME}/zsh
 
 
 
