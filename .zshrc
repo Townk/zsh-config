@@ -75,13 +75,13 @@ export ENHANCD_DIR=${XDG_CACHE_HOME}/enhancd
 ZSH_CACHE_DIR=${XDG_CACHE_HOME}/zsh
 
 if [ -d ${XDG_DATA_HOME}/zplug ]; then
-	export ZPLUG_HOME=${XDG_DATA_HOME}/zplug
+    export ZPLUG_HOME=${XDG_DATA_HOME}/zplug
 elif [ -d /usr/local/opt/zplug ]; then
     export ZPLUG_HOME=/usr/local/opt/zplug
 elif [ -d /opt/zplug ]; then
     export ZPLUG_HOME=/opt/zplug
 else
-	export ZPLUG_HOME=${XDG_DATA_HOME}/zplug
+    export ZPLUG_HOME=${XDG_DATA_HOME}/zplug
 fi
 
 if [ ! -d ${ZPLUG_HOME} ]; then
@@ -99,7 +99,7 @@ zplug "b4b4r07/enhancd",                        use:init.sh, defer:2
 zplug "zsh-users/zsh-history-substring-search", defer:3
 zplug "plugins/colored-man-pages",              from:oh-my-zsh, as:plugin, defer:2
 zplug "hlissner/zsh-autopair",                  defer:2
-zplug "RobertDeRose/virtualenv-autodetect",     defer:2
+zplug "Townk/virtualenv-autodetect",            defer:3
 zplug "${ZDOTDIR:-$HOME}",                      from:local,        use:"plugins/*.plugin.zsh"
 zplug "${USER_LOCAL_HOME}/share/zsh",           from:local,        use:"plugins/*.plugin.zsh"
 
@@ -654,3 +654,5 @@ bindkey '^G^G' debug-widget
 if [ -f "${SYSTEM_CONFIG}${SYSTEM_CONFIG_POST_SUFFIX}" ]; then
     source "${SYSTEM_CONFIG}${SYSTEM_CONFIG_POST_SUFFIX}"
 fi  
+
+zplug_virtualenv_validate
