@@ -236,23 +236,6 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
 ## Kill the lag on vim mode when pressing <ESC>
 export KEYTIMEOUT=1
 
-# NodEnv
-export NODENV_ROOT="${USER_LOCAL_HOME}/opt/nodenv"
-eval "$(nodenv init -)"
-# PyEnv
-export PYENV_ROOT="${USER_LOCAL_HOME}/opt/pyenv"
-eval "$(pyenv init -)"
-# JEnv
-export JENV_ROOT="${USER_LOCAL_HOME}/opt/jenv"
-eval "$(jenv init -)"
-export JAVA_HOME=$(jenv javahome)
-# RBEnv
-export RBENV_ROOT="${USER_LOCAL_HOME}/opt/rbenv"
-eval "$(rbenv init -)"
-# GoEnv
-export GOENV_ROOT="${USER_LOCAL_HOME}/opt/goenv"
-eval "$(goenv init -)"
-
 
 
 # # --------------------------------------------------------------------
@@ -374,7 +357,42 @@ zle -N explain-this
 
 
 # # --------------------------------------------------------------------
-# # 5. Define color variables
+# # 5. Applications
+# # --------------------------------------------------------------------
+
+# NVM
+# Unfortunately NoeEnv does not grab the latest LTS versions, so I have to use nvm
+export NVM_DIR="${XDG_DATA_HOME}/nvm"
+[ -s "${XDG_PACKAGE_HOME}/nvm/nvm.sh" ] && . "${XDG_PACKAGE_HOME}/nvm/nvm.sh"  # This loads nvm
+[ -s "${XDG_PACKAGE_HOME}/nvm/etc/bash_completion" ] && . "${XDG_PACKAGE_HOME}/nvm/etc/bash_completion"  # This loads nvm bash_completion
+# PyEnv
+if _has pyenv; then
+    export PYENV_ROOT="${XDG_DATA_HOME}/pyenv"
+    eval "$(pyenv init -)"
+fi
+# Poetry
+export POETRY_HOME="${XDG_PACKAGE_HOME}/poetry"
+# JEnv
+if _has jenv; then
+    export JENV_ROOT="${XDG_DATA_HOME}/jenv"
+    eval "$(jenv init -)"
+    export JAVA_HOME=$(jenv javahome)
+fi
+# RBEnv
+if _has rbenv; then
+    export RBENV_ROOT="${XDG_DATA_HOME}/rbenv"
+    eval "$(rbenv init -)"
+fi
+# GoEnv
+if _has goenv; then
+    export GOENV_ROOT="${XDG_DATA_HOME}/goenv"
+    eval "$(goenv init -)"
+fi
+
+
+
+# # --------------------------------------------------------------------
+# # 6. Define color variables
 # # --------------------------------------------------------------------
 # Note: options -U and -z do the following:
 # -U: prevent any alias from being resolved. This means that if you
@@ -396,7 +414,7 @@ PR_NO_COLOR="%{${terminfo[sgr0]}%}"
 
 
 # # --------------------------------------------------------------------
-# # 6. Promp Appearances
+# # 7. Promp Appearances
 # # --------------------------------------------------------------------
 autoload -Uz promptinit && promptinit
 
@@ -413,7 +431,7 @@ prompt pure
 
 
 # # --------------------------------------------------------------------
-# # 7. Command Completion
+# # 8. Command Completion
 # # --------------------------------------------------------------------
 zstyle :compinstall filename "${ZDOTDIR}/.zshrc"
 autoload -Uz compinit
@@ -472,7 +490,7 @@ bashcompinit
 
 
 # # --------------------------------------------------------------------
-# # 8. Aliases
+# # 9. Aliases
 # # --------------------------------------------------------------------
 
 ## global aliases
