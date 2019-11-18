@@ -1,0 +1,67 @@
+# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4 -*-
+
+# MIT License
+#
+# Copyright (c) 2016 Thiago Alves
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
+# # #
+# Function to remove normalize paths variables.
+#
+# Given a list of variable names, this function will go through each variable
+# listed on the given argument and will try to normalize it.
+#
+# The normalization will first mark the path variable to be unique with and
+# automatically exported.
+#
+# If the path variable is an all uppercate variable (e.g. INFOPATH, MANPATH,
+# etc.), a lowercase version of the variable is created and associated with
+# it in the same way $PATH is associated with $path.
+# 
+# In the end, each directory contained inside each path variable will be
+# tested for existance. If the directory cannot be found, it will be removed
+# from the path variable.
+# #
+function normalize-paths {
+    if [ $# -gt 0 ]; then
+        local paths
+        for paths in "$1[@]"; do
+            local element
+            local build
+            if [ $paths = ${(U)paths} ]; then
+                typeset -gxTU $paths ${(L)paths}
+            else
+                typeset -gU ${(L)paths}
+                typeset -gx ${(U)paths}
+            fi
+            eval "
+                for element in \"\$${(L)paths}[@]\"; do
+                    if [ -d \"$element\" ]; then
+                      build=(\"$build[@]\" \"$element\")
+                    fi
+                done
+                ${(L)paths}=( \"$build[@]\" )
+            "
+        done
+    fi
+}
+
+normalize-paths $@

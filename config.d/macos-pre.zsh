@@ -22,36 +22,38 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# # --------------------------------------------------------------------
-# # Configuration file for Z Shell Specific for macOS system
-# # By: Thiago Alves
-# # Last Update: August, 16 2019
-# # --------------------------------------------------------------------
-
-# # --------------------------------------------------------------------
-# # Contents:
-# # --------
-# # 2. Environment Options
-# # --------------------------------------------------------------------
-
 # Use this file to configure options specific for a macOS system. Notice
 # that not all sessions are listed here. This is on purpose to prevent
 # any override on sessions that were not intended to be overriden.
 
 # # --------------------------------------------------------------------
-# # 2. Environment Options
+# # 1. Environment Options
 # # --------------------------------------------------------------------
 # Environment variables and shell options specific for macOS
 
-if [[ -e /usr/local/bin/brew ]]; then
+if _has brew; then
     # Defines the Homebrew instalation dir
     HOMEBREW_PREFIX=/usr/local
+    ## Allow apps to be installed on the /Applications directory
+    HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
-    # search path for zsh functions  (fpath ==> function path)
-    fpath=(
-        "${fpath[@]}"
-        ${HOMEBREW_PREFIX}/share/zsh/site-functions
-        ${HOMEBREW_PREFIX}/share/zsh/functions
-        ${HOMEBREW_PREFIX}/share/zsh-completions
+    # Adjust PATHs variables to insert HOMEBREW paths between the user local and
+    # the system paths.
+    path=(
+        ${USER_LOCAL_HOME}/bin
+        ${HOMEBREW_PREFIX}/share/zsh/scripts
+        "$path[@]"
     )
+    fpath=(
+        ${XDG_DATA_HOME}/zsh/functions
+        ${ZDOTDIR:-$HOME}/functions
+        ${HOMEBREW_PREFIX}/share/zsh/{site-functions,functions}
+        "${fpath[@]}"
+    )
+    LD_LIBRARY_PATH=${USER_LOCAL_HOME}/lib:${HOMEBREW_PREFIX}/lib:${LD_LIBRARY_PATH}
+    HELPDIR=${XDG_DATA_HOME}/zsh/helpfiles:${HOMEBREW_PREFIX}/share/zsh/helpfiles:$HELPDIR
+    MANPATH=${XDG_DATA_HOME}/man:${HOMEBREW_PREFIX}/share/man:$MANPATH
 fi
+
+## Define a place for all iTerm2 integration files
+export ITERMDIR=$XDG_CONFIG_HOME/iterm2

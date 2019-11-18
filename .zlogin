@@ -1,4 +1,5 @@
-# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4; tab-always-indent: t -*-
+#!/usr/bin/env zsh
+# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4 -*-
 
 # MIT License
 #
@@ -22,25 +23,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-__CHTSH_LANGS=($(curl -s cheat.sh/:list))
-_arguments -C \
-    '--help[show this help message and exit]: :->noargs' \
-    '--shell[enter shell repl]: :->noargs' \
-    '1:Cheat Sheet:->lang' \
-    '*::: :->noargs' && return 0
+# # --------------------------------------------------------------------
+# # 1. System specific post-configuration (overrides)
+# # --------------------------------------------------------------------
+if [ -f "${SYSTEM_CONFIG}${SYSTEM_CONFIG_POST_SUFFIX}" ]; then
+    source "${SYSTEM_CONFIG}${SYSTEM_CONFIG_POST_SUFFIX}"
+fi  
 
-if [[ CURRENT -ge 1 ]]; then
-    case $state in
-    noargs)
-        _message "nothing to complete"
-        ;;
-    lang)
-        compadd -X "Cheat Sheets" ${__CHTSH_LANGS[@]}
-        ;;
-    *)
-        _message "Unknown state, error in autocomplete"
-        ;;
-    esac
-
-    return
-fi
+# Clean up all path variables
+normalize-paths $NORMALIZE_VARS

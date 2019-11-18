@@ -29,5 +29,3 @@ ZDOTDIR=$HOME/.config/zsh
 if [[ -e $ZDOTDIR/.zshenv ]]; then
     . $ZDOTDIR/.zshenv
 fi
-
-# vim: ts=4:sw=4:et:ft=sh

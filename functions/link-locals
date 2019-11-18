@@ -1,4 +1,4 @@
-# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4; tab-always-indent: t -*-
+# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4 -*-
 
 # MIT License
 #
@@ -22,6 +22,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Use this file to configure options specific for a Linux system. Notice
-# that not all sessions are listed here. This is on purpose to prevent
-# any override on sessions that were not intended to be overriden.
+function _link_app() {
+    if [ $# -ne 1 ]; then
+        echo "Error: Missing app name"
+        exit 1
+    fi
+    if [ ! -d ${XDG_PACKAGE_HOME}/$1 ]; then
+        echo "Error: Application '$1' is not installed on the local space"
+        exit 1
+    fi
+    for binary in ${XDG_PACKAGE_HOME}/$1/bin/*; do
+        if [ -x $binary -a ! -d $binay ]; then
+            ln -sf $binary ${USER_BIN}/
+        fi
+    done
+    return 0
+}
+
+function _link_locals() {
+    if [ $# -gt 0 ]; then
+        for app in $@; do
+            _link_app ${app}
+        done
+    else
+        for app in ${XDG_PACKAGE_HOME}/*; do
+            if [ -d $app/bin ]; then
+                _link_app ${app##*/}
+            fi
+        done
+    fi
+    return 0
+}
+
+_link_locals $@

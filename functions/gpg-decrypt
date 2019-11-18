@@ -1,4 +1,4 @@
-# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4; tab-always-indent: t -*-
+# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4 -*-
 
 # MIT License
 #
@@ -22,6 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Use this file to configure options specific for a Linux system. Notice
-# that not all sessions are listed here. This is on purpose to prevent
-# any override on sessions that were not intended to be overriden.
+# # #
+#
+# #
+function _gpg_decrypt {
+    local cmd=$(whence gpg)
+    if [ -e "$1" ]; then
+        if [ $# -ge 2 ]; then
+            $cmd --decrypt -q "$1" > "$2"
+        else
+            $cmd --decrypt -q "$1"
+        fi
+    else
+        echo "$@" | $cmd --decrypt -q
+    fi
+}
+
+_gpg_decrypt $@

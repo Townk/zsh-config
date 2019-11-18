@@ -1,4 +1,4 @@
-# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4; tab-always-indent: t -*-
+# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4 -*-
 
 # MIT License
 #
@@ -22,6 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Use this file to configure options specific for a Linux system. Notice
-# that not all sessions are listed here. This is on purpose to prevent
-# any override on sessions that were not intended to be overriden.
+
+function _gcd {
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+        cd "./"$(git rev-parse --show-cdup)
+        return
+    else
+    fi
+}
+
+_gcd

@@ -23,18 +23,81 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# # --------------------------------------------------------------------
+# # 1. Message Of The Day (MOTD)
+# # --------------------------------------------------------------------
+case $OSTYPE in
+    darwin*)
+        UPTIME_TEXT=$(uptime | sed -E 's/^[^,]*up *//; s/, *[[:digit:]]* users.*//; s/min/minutes/; s/([[:digit:]]+):0?([[:digit:]]+)/\1 hours, \2 minutes/')
+        PWD_REMAINING_DAYS=$((90 - ($(date "+%s") - ($(dscl -q . read $HOME SMBPasswordLastSet | grep -v ':$' | awk '{ sub(/^(.*:)? +/, ""); print $0 }') / 10000000 - 11644473600)) / 86400))
+        USER_REAL_NAME=$(dscl -q . read $HOME RealName | grep -v ':$' | awk '{ sub(/^ +/, ""); print $2 }')
+        ;;
+    *)
+        UPTIME_TEXT="$(uptime -p 2> /dev/null)"
+        PWD_REMAINING_DAYS=$(( ($(date -d "`chage -l $USER | grep "Last password change" | awk -F: '{ print $2; }'` + 90 days" +%s) - $(date -d "now" +%s)) / 86400 ))
+        ;;
+esac
+PWD_REMAINING_SUFFIX="day"
+if [ $PWD_REMAINING_DAYS -gt 7 ]; then
+    PWD_COLOR="\e[6;32m"
+elif [ $PWD_REMAINING_DAYS -gt 2 ]; then
+    PWD_COLOR="\e[6;33m"
+else
+    PWD_COLOR="\e[6;31m"
+    if [ $PWD_REMAINING_DAYS -ne 1 ]; then
+        PWD_REMAINING_SUFFIX="${PWD_REMAINING_SUFFIX}s"
+    fi
+fi
 
 UPTIME_TEXT="$(uptime -p 2> /dev/null)"
 if [ $? -ne 0 ]; then
     UPTIME_TEXT=$(uptime | sed -E 's/^[^,]*up *//; s/, *[[:digit:]]* users.*//; s/min/minutes/; s/([[:digit:]]+):0?([[:digit:]]+)/\1 hours, \2 minutes/')
 fi
 
+
 if $(whence toilet >/dev/null); then
-    echo -e "\e[1;37m";toilet -f future -F gay -t "   Welcome, " $USER;
+    echo -e "\e[1;37m";toilet -f future -F gay -t "   Welcome, " ${USER_REAL_NAME:-$USER};
     echo ""
 fi
 echo -ne "     \e[0;34mToday is:\t\t\t\e[6;32m" `date`; echo ""
 echo -e "     \e[0;34mKernel Information: \t\e[6;32m" `uname -smr`
-echo -ne "     \e[0;34mUptime:\t\t\t\e[6;32m ";echo $UPTIME_TEXT;echo ""
+echo -ne "     \e[0;34mUptime:\t\t\t\e[6;32m ";echo $UPTIME_TEXT
+echo -ne "     \e[0;34mPassword expires in:\t$PWD_COLOR ";echo "$PWD_REMAINING_DAYS $PWD_REMAINING_SUFFIX";echo "";echo ""
 echo -e "\e[6;33m"; cal -3
-echo -e "\e[0m"
+echo -ne "\e[0m"
+
+
+# # --------------------------------------------------------------------
+# # 2. Plugins
+# # --------------------------------------------------------------------
+for plugindir in $pluginpath; do
+    if [ -d $plugindir ]; then
+        for plugin in $plugindir/*.plugin.zsh(#qN); do
+            source $plugin
+        done
+    fi
+done    
+
+
+# # --------------------------------------------------------------------
+# # 3. System specific pre-configuration
+# # --------------------------------------------------------------------
+local SYSTEM_CONFIG="${ZDOTDIR}/config.d"
+local SYSTEM_CONFIG_PRE_SUFFIX="-pre.zsh"
+local SYSTEM_CONFIG_POST_SUFFIX="-post.zsh"
+
+case "$OSTYPE" in
+  darwin*)
+    SYSTEM_CONFIG="${SYSTEM_CONFIG}/macos"
+  ;;
+  linux*)
+    SYSTEM_CONFIG="${SYSTEM_CONFIG}/linux"
+  ;;
+  dragonfly*|freebsd*|netbsd*|openbsd*)
+    SYSTEM_CONFIG="${SYSTEM_CONFIG}/bsd"
+  ;;
+esac
+
+if [ -f "${SYSTEM_CONFIG}${SYSTEM_CONFIG_PRE_SUFFIX}" ]; then
+    source "${SYSTEM_CONFIG}${SYSTEM_CONFIG_PRE_SUFFIX}"
+fi  
