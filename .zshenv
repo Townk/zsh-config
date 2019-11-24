@@ -168,16 +168,19 @@ fpath=(
 )
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] fpath )
 
-# Path for dynamic loading of libraries.
-LD_LIBRARY_PATH=${USER_LIB}:/usr/local/lib:/usr/lib:${LD_LIBRARY_PATH}
-NORMALIZE_VARS=( $NORMALIZE_VARS[@] LD_LIBRARY_PATH )
-
 # Path for user manuals
-MANPATH=${XDG_DATA_HOME}/man:/usr/share/man:$MANPATH
+MANPATH=${XDG_DATA_HOME}/man:/usr/share/man:${MANPATH}
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] MANPATH )
 
 HELPDIR=${XDG_DATA_HOME}/zsh/help:/usr/local/share/zsh/help:/usr/share/zsh/5.3/help
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] HELPDIR )
+
+export PERLLIB=${XDG_LIB_HOME}/perl:${PERLLIB}
+NORMALIZE_VARS=( $NORMALIZE_VARS[@] PERL5LIB )
+
+# Path for dynamic loading of libraries.
+export LD_LIBRARY_PATH=${USER_LIB}:/usr/local/lib:/usr/lib:${LD_LIBRARY_PATH}
+NORMALIZE_VARS=( $NORMALIZE_VARS[@] LD_LIBRARY_PATH )
 
 
 # # --------------------------------------------------------------------
