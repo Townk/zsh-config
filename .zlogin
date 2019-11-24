@@ -32,3 +32,7 @@ fi
 
 # Clean up all path variables
 normalize-paths $NORMALIZE_VARS
+
+if _has starship; then
+    eval "$(starship init zsh)"
+fi
