@@ -148,20 +148,42 @@ bashcompinit
 alias -g NUL="> /dev/null 2>&1"
 alias -g C='| wc -l'
 
-## command aliases
-alias gls='gls --color=always -Fh'
-alias exa='exa --color=always --color-scale -Fh'
-alias ls='ls -FGhkO'
-alias ll='ls -l'
-alias la='ls -A'
-alias lla='ls -Al'
-alias rm='rm -i'
-alias h='history 1 -1'
+## basic commands
+alias rm='rm -i' # always confirm when deleting a file
+alias h='history 1 -1' # full history
 alias pgrep='pgrep -lf' # long output, match against full args list
-alias ccat='colorize_via_pygmentize'
 alias em='emacs -nw'
-alias lcat='logcat-color'
 alias grep='grep --color'
+
+## replace ls -> exa
+alias la='ls -a'
+alias lla='ls -al'
+alias ll='ls -l'
+if _has exa; then
+    alias ls='exa --color=always --color-scale --group-directories-first --git -Fh'
+    alias tree='exa --tree'
+elif _has gls; then
+    alias ls='gls --color=always -Fh'
+else
+    alias ls='ls -FGhkO'
+    alias la='ls -A'
+    alias lla='ls -Al'
+fi
+
+## replace cat -> bat
+if _has bat; then
+    alias cat='bat' # cat with syntax highlight
+fi
+
+## replace cat -> bat
+if _has prettyping; then
+    alias ping='prettyping' # nicer ping
+fi
+
+## adjust tldr to use static mode only
+if _has tldr; then
+    alias tldr='tldr -s'
+fi
 
 ## git aliases
 alias gst='git status --short'
