@@ -27,13 +27,17 @@ function _link_app() {
         echo "Error: Missing app name"
         exit 1
     fi
-    if [ ! -d ${XDG_PACKAGE_HOME}/$1 ]; then
+    if [ ! -d ${XDG_OPT_HOME}/$1 ]; then
         echo "Error: Application '$1' is not installed on the local space"
         exit 1
     fi
-    for binary in ${XDG_PACKAGE_HOME}/$1/bin/*; do
-        if [ -x $binary -a ! -d $binay ]; then
+    for binary in ${XDG_OPT_HOME}/$1/bin/*; do
+        echo -n "Linking $(basename $binary) ... "
+        if [ -f $binary -a -x $binary ]; then
             ln -sf $binary ${USER_BIN}/
+            echo "done"
+        else
+            echo "skipped"
         fi
     done
     return 0
@@ -45,7 +49,7 @@ function _link_locals() {
             _link_app ${app}
         done
     else
-        for app in ${XDG_PACKAGE_HOME}/*; do
+        for app in ${XDG_OPT_HOME}/*; do
             if [ -d $app/bin ]; then
                 _link_app ${app##*/}
             fi
