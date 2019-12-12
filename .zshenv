@@ -29,7 +29,12 @@
 
 ## Returns whether the given command is executable or aliased.
 function _has() {
-    return $(whence $1 >/dev/null)
+    return $(whence $1 >/dev/null 2>&1)
+}
+
+## Returns whether the given alias exists
+function _has_alias() {
+    return $(alias $1 > /dev/null 2>&1)
 }
 
 ## enable setenv() for csh compatibility
