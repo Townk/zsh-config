@@ -48,7 +48,7 @@ function _gpg_encrypt {
     local source_file=$1
     local remove_temp=0
     if [ "$recipient" = "" ]; then
-        recipient="talk@thiagoalves.com.br"
+        recipient="${USER_EMAIL}"
     else
         recipient=$recipient[2]
     fi
