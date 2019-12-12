@@ -156,33 +156,11 @@ alias em='emacs -nw'
 alias grep='grep --color'
 
 ## replace ls -> exa
-alias la='ls -a'
-alias lla='ls -al'
-alias ll='ls -l'
-if _has exa; then
-    alias ls='exa --color=always --color-scale --group-directories-first --git -Fh'
-    alias tree='exa --tree'
-elif _has gls; then
-    alias ls='gls --color=always -Fh'
-else
+if ! _has_alias ls; then
     alias ls='ls -FGhkO'
     alias la='ls -A'
+    alias ll='ls -l'
     alias lla='ls -Al'
-fi
-
-## replace cat -> bat
-if _has bat; then
-    alias cat='bat' # cat with syntax highlight
-fi
-
-## replace cat -> bat
-if _has prettyping; then
-    alias ping='prettyping' # nicer ping
-fi
-
-## adjust tldr to use static mode only
-if _has tldr; then
-    alias tldr='tldr -s'
 fi
 
 ## git aliases
@@ -217,9 +195,6 @@ elif _has vim; then
 else
     alias vim='vi'
 fi
-
-# AWS CLI
-alias awsp='aws --profile personal'
 
 
 # # --------------------------------------------------------------------
