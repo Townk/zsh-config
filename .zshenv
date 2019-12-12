@@ -157,6 +157,7 @@ NORMALIZE_VARS=( cdpath )
 # Set the list of directories that Zsh searches for programs.
 path=(
     ${USER_BIN}
+    /usr/local/MacGPG2/bin
     /usr/local/bin
     /usr/share/zsh/5.3/scripts
     /usr/{bin,sbin}
@@ -204,6 +205,10 @@ export TMPDIR=${XDG_TEMP_HOME}
 # # --------------------------------------------------------------------
 # # 7. Others
 # # --------------------------------------------------------------------
+
+export POETRY_HOME=${XDG_OPT_HOME}/poetry
+export RUSTUP_HOME=${XDG_OPT_HOME}/rustup
+export CARGO_HOME=${XDG_OPT_HOME}/cargo
 
 ## Make GnuPG to use XDG configuration dir
 export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
