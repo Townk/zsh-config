@@ -127,7 +127,19 @@ export KEYTIMEOUT=1
 
 
 # # --------------------------------------------------------------------
-# # 5. Path-like variables
+# # 5. Helper variables
+# # --------------------------------------------------------------------
+
+## Define a places for local binaries
+export USER_BIN=$XDG_LOCAL_ROOT/bin
+export USER_LIB=$XDG_LOCAL_ROOT/lib
+
+## Define a places for local temporary files
+export TMPDIR=${XDG_TEMP_HOME}
+
+
+# # --------------------------------------------------------------------
+# # 6. Path-like variables
 # # --------------------------------------------------------------------
 
 ## Custom array holding all directoris that should have local plugin
@@ -188,18 +200,6 @@ NORMALIZE_VARS=( $NORMALIZE_VARS[@] PERL5LIB )
 # Path for dynamic loading of libraries.
 export LD_LIBRARY_PATH=${USER_LIB}:/usr/local/lib:/usr/lib:${LD_LIBRARY_PATH}
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] LD_LIBRARY_PATH )
-
-
-# # --------------------------------------------------------------------
-# # 6. Helper variables
-# # --------------------------------------------------------------------
-
-## Define a places for local binaries
-export USER_BIN=$XDG_LOCAL_ROOT/bin
-export USER_LIB=$XDG_LOCAL_ROOT/lib
-
-## Define a places for local temporary files
-export TMPDIR=${XDG_TEMP_HOME}
 
 
 # # --------------------------------------------------------------------
