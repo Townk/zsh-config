@@ -90,7 +90,7 @@ zle -N iterm_go_split_down
 # defined. These variables usually use autoloaded functions or a local plugin.
 if _has brew; then
     ## Homebrew helper to allow more API access on Github
-    export HOMEBREW_GITHUB_API_TOKEN=$(gpg-decrypt ${ZDOTDIR:-$HOME}/.secrets/github.api.homebrew)
+    export HOMEBREW_GITHUB_API_TOKEN=$(vault github.api.access_token)
 fi
 
 # # --------------------------------------------------------------------
