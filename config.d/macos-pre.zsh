@@ -40,7 +40,7 @@ if _has brew; then
     # Adjust PATHs variables to insert HOMEBREW paths between the user local and
     # the system paths.
     path=(
-        ${USER_LOCAL_HOME}/bin
+        ${USER_BIN}/bin
         ${HOMEBREW_PREFIX}/share/zsh/scripts
         "$path[@]"
     )
@@ -50,7 +50,7 @@ if _has brew; then
         ${HOMEBREW_PREFIX}/share/zsh/{site-functions,functions}
         "${fpath[@]}"
     )
-    LD_LIBRARY_PATH=${USER_LOCAL_HOME}/lib:${HOMEBREW_PREFIX}/lib:${LD_LIBRARY_PATH}
+    LD_LIBRARY_PATH=${USER_BIN}/lib:${HOMEBREW_PREFIX}/lib:${LD_LIBRARY_PATH}
     HELPDIR=${XDG_DATA_HOME}/zsh/helpfiles:${HOMEBREW_PREFIX}/share/zsh/helpfiles:$HELPDIR
     MANPATH=${XDG_DATA_HOME}/man:${HOMEBREW_PREFIX}/share/man:$MANPATH
 fi
