@@ -23,6 +23,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+#zmodload zsh/zprof
+
 # # --------------------------------------------------------------------
 # # 1. Core functions
 # # --------------------------------------------------------------------
@@ -109,7 +111,7 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
 ## default editor
-export EDITOR='emacs -nw'
+export EDITOR='nvim'
 export VISUAL=${EDITOR}
 
 export LESS="-r -F"
@@ -212,13 +214,14 @@ export CARGO_HOME=${XDG_OPT_HOME}/cargo
 
 ## Make GnuPG to use XDG configuration dir
 export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
+export GPG_TTY=$(tty)
 
 ## Define where the Android SDK should be installed
 export ANDROID_SDK_ROOT=/usr/local/share/android-sdk
 export ANDROID_NDK_ROOT=/usr/local/share/android-ndk
-export ANDROID_SDK_HOME=${XDG_DATA_HOME}/android/sdk
-export ANDROID_EMULATOR_HOME=${XDG_DATA_HOME}/android/emulator
-export ANDROID_AVD_HOME=${XDG_DATA_HOME}/android/adv
+export ANDROID_SDK_HOME=/usr/local/share/android-sdk
+export ANDROID_EMULATOR_HOME=/usr/local/share/android-sdk/emulator
+export ANDROID_AVD_HOME=${HOME}/.android/adv
 
 # Define where gradle should store its local data files
 export GRADLE_USER_HOME=${XDG_DATA_HOME}/gradle

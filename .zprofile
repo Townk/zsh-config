@@ -27,15 +27,21 @@
 # # 1. Message Of The Day (MOTD)
 # # --------------------------------------------------------------------
 case $OSTYPE in
-    darwin*)
-        UPTIME_TEXT=$(uptime | sed -E 's/^[^,]*up *//; s/, *[[:digit:]]* users.*//; s/min/minutes/; s/([[:digit:]]+):0?([[:digit:]]+)/\1 hours, \2 minutes/')
-        PWD_REMAINING_DAYS=$((90 - ($(date "+%s") - ($(dscl -q . read $HOME SMBPasswordLastSet | grep -v ':$' | awk '{ sub(/^(.*:)? +/, ""); print $0 }') / 10000000 - 11644473600)) / 86400))
-        USER_REAL_NAME=$(dscl -q . read $HOME RealName | grep -v ':$' | awk '{ sub(/^ +/, ""); print $2 }')
-        ;;
-    *)
-        UPTIME_TEXT="$(uptime -p 2> /dev/null)"
-        PWD_REMAINING_DAYS=$(( ($(date -d "`chage -l $USER | grep "Last password change" | awk -F: '{ print $2; }'` + 90 days" +%s) - $(date -d "now" +%s)) / 86400 ))
-        ;;
+  darwin*)
+    PWD_LAST_CHANGE=$(dscl -q . read $HOME SMBPasswordLastSet 2> /dev/null | grep -v ':$' | awk '{ sub(/^(.*:)? +/, ""); print $0 }')
+    if [ -n "$PWD_LAST_CHANGE" ] && [ "$PWD_LAST_CHANGE" -eq "$PWD_LAST_CHANGE" ] 2>/dev/null; then
+        PWD_LAST_CHANGE=$(( $(date +%s) - ($PWD_LAST_CHANGE / 10000000 - 11644473600) ))
+    else
+        PWD_LAST_CHANGE=$(( $(date +%s) - $(dscl -q . readpl $HOME accountPolicyData passwordLastSetTime | awk '{ sub(/^(.*:)? +/, ""); print $0 }') ))
+    fi
+    UPTIME_TEXT=$(uptime | sed -E 's/^[^,]*up *//; s/, *[[:digit:]]* users.*//; s/min/minutes/; s/([[:digit:]]+):0?([[:digit:]]+)/\1 hours, \2 minutes/')
+    PWD_REMAINING_DAYS=$(LC_ALL=C /usr/bin/printf "%.*f\n" "0" $((90 - ($PWD_LAST_CHANGE / 86400))) )
+    USER_REAL_NAME=$(dscl -q . read $HOME RealName | grep -v ':$' | awk '{ sub(/^ +/, ""); print $2 }')
+    ;;
+  *)
+    UPTIME_TEXT="$(uptime -p 2> /dev/null)"
+    PWD_REMAINING_DAYS=$(( ($(date -d "`chage -l $USER | grep "Last password change" | awk -F: '{ print $2; }'` + 90 days" +%s) - $(date -d "now" +%s)) / 86400 ))
+    ;;
 esac
 PWD_REMAINING_SUFFIX="day"
 if [ $PWD_REMAINING_DAYS -gt 7 ]; then
@@ -60,9 +66,9 @@ if $(whence toilet >/dev/null); then
     echo ""
 fi
 echo -ne "     \e[0;34mToday is:\t\t\t\e[6;32m" `date`; echo ""
-echo -e "     \e[0;34mKernel Information: \t\e[6;32m" `uname -smr`
 echo -ne "     \e[0;34mUptime:\t\t\t\e[6;32m ";echo $UPTIME_TEXT
-echo -ne "     \e[0;34mPassword expires in:\t$PWD_COLOR ";echo "$PWD_REMAINING_DAYS $PWD_REMAINING_SUFFIX";echo "";echo ""
+echo -ne "     \e[0;34mPassword expires in:\t$PWD_COLOR ";echo "$PWD_REMAINING_DAYS $PWD_REMAINING_SUFFIX"
+echo -e "     \e[0;34mKernel Information: \t\e[6;32m" `uname -smr`;echo "";echo ""
 echo -e "\e[6;33m"; cal -3
 echo -ne "\e[0m"
 
@@ -89,15 +95,15 @@ local SYSTEM_CONFIG_POST_SUFFIX="-post.zsh"
 case "$OSTYPE" in
   darwin*)
     SYSTEM_CONFIG="${SYSTEM_CONFIG}/macos"
-  ;;
+    ;;
   linux*)
     SYSTEM_CONFIG="${SYSTEM_CONFIG}/linux"
-  ;;
+    ;;
   dragonfly*|freebsd*|netbsd*|openbsd*)
     SYSTEM_CONFIG="${SYSTEM_CONFIG}/bsd"
-  ;;
+    ;;
 esac
 
 if [ -f "${SYSTEM_CONFIG}${SYSTEM_CONFIG_PRE_SUFFIX}" ]; then
     source "${SYSTEM_CONFIG}${SYSTEM_CONFIG_PRE_SUFFIX}"
-fi  
+fi

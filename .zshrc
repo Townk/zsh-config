@@ -136,8 +136,8 @@ zstyle ':completion:*' verbose true
 ## case-insensitive (all),partial-word and then substring completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
-autoload -Uz bashcompinit
-bashcompinit
+#autoload -Uz bashcompinit
+#bashcompinit
 
 
 # # --------------------------------------------------------------------
@@ -156,12 +156,12 @@ alias em='emacs -nw'
 alias grep='grep --color'
 
 ## replace ls -> exa
-if ! _has_alias ls; then
+#if ! _has_alias ls; then
     alias ls='ls -FGhkO'
     alias la='ls -A'
     alias ll='ls -l'
     alias lla='ls -Al'
-fi
+#fi
 
 ## git aliases
 alias gst='git status --short'
@@ -187,14 +187,14 @@ alias ssh-x='ssh -o CompressionLevel=9 -c arcfour,blowfish-cbc -YC'
 alias py='ipython'
 
 # NeoVim
-if _has nvim; then
+#if _has nvim; then
     alias vim='nvim'
     alias vi='nvim'
-elif _has vim; then
-    alias vi='vim'
-else
-    alias vim='vi'
-fi
+#elif _has vim; then
+#    alias vi='vim'
+#else
+#    alias vim='vi'
+#fi
 
 
 # # --------------------------------------------------------------------

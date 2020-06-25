@@ -31,7 +31,7 @@
 # # --------------------------------------------------------------------
 # Environment variables and shell options specific for macOS
 
-if _has brew; then
+#if _has brew; then
     # Defines the Homebrew instalation dir
     HOMEBREW_PREFIX=/usr/local
     ## Allow apps to be installed on the /Applications directory
@@ -53,7 +53,7 @@ if _has brew; then
     LD_LIBRARY_PATH=${USER_BIN}/lib:${HOMEBREW_PREFIX}/lib:${LD_LIBRARY_PATH}
     HELPDIR=${XDG_DATA_HOME}/zsh/helpfiles:${HOMEBREW_PREFIX}/share/zsh/helpfiles:$HELPDIR
     MANPATH=${XDG_DATA_HOME}/man:${HOMEBREW_PREFIX}/share/man:$MANPATH
-fi
+#fi
 
 ## Define a place for all iTerm2 integration files
 export ITERMDIR=$XDG_CONFIG_HOME/iterm2

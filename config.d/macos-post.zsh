@@ -88,10 +88,10 @@ zle -N iterm_go_split_down
 # # --------------------------------------------------------------------
 # Variables that need most of the configuration to be finished before they're
 # defined. These variables usually use autoloaded functions or a local plugin.
-if _has brew; then
+#if _has brew; then
     ## Homebrew helper to allow more API access on Github
     export HOMEBREW_GITHUB_API_TOKEN=$(vault github.api.access_token)
-fi
+#fi
 
 # # --------------------------------------------------------------------
 # # 3. Aliases
