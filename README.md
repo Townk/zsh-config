@@ -38,7 +38,7 @@ that some distros will put it at `/etc/zsh/zprofile`.
 
 Assuming the the file is located at `/etc/zsh/zprofile`:
 
-``` sh
+```sh
     $ sudo echo "export ZDOTDIR=~/.config/zsh" >> /etc/zsh/zprofile
 ```
 

@@ -91,6 +91,7 @@ zle -N iterm_go_split_down
 #if _has brew; then
     ## Homebrew helper to allow more API access on Github
     export HOMEBREW_GITHUB_API_TOKEN=$(vault github.api.access_token)
+    export GH_TOKEN=$(vault com.github.api.token.admin)
 #fi
 
 # # --------------------------------------------------------------------
@@ -106,3 +107,6 @@ alias notify='/Applications/Terminal\ Notifier.app/Contents/MacOS/terminal-notif
 
 # Quick View
 alias qlf='qlmanage -p "$@" > /dev/null 2>&1'
+
+# Prevent `rm` from erasing the file
+alias rm='trash -F'

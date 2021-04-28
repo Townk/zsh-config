@@ -171,11 +171,10 @@ NORMALIZE_VARS=( cdpath )
 # Set the list of directories that Zsh searches for programs.
 path=(
     ${USER_BIN}
+    /usr/local/opt/gettext/bin
+    /usr/local/opt/sqlite/bin
     /usr/local/MacGPG2/bin
-    /usr/local/bin
-    /usr/share/zsh/5.3/scripts
-    /usr/{bin,sbin}
-    /{bin,sbin}
+    {/usr,/usr/local,}/{bin,sbin}
     "$path[@]"
 )
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] path )
@@ -208,6 +207,11 @@ NORMALIZE_VARS=( $NORMALIZE_VARS[@] LD_LIBRARY_PATH )
 # # 7. Others
 # # --------------------------------------------------------------------
 
+
+export LDFLAGS="-L/usr/local/opt/gettext/lib -L/usr/local/opt/sqlite/lib"
+export CPPFLAGS="-I/usr/local/opt/gettext/include -I/usr/local/opt/sqlite/include"
+export PKG_CONFIG_PATH="/usr/local/opt/sqlite/lib/pkgconfig"
+
 export POETRY_HOME=${XDG_OPT_HOME}/poetry
 export RUSTUP_HOME=${XDG_OPT_HOME}/rustup
 export CARGO_HOME=${XDG_OPT_HOME}/cargo
@@ -217,11 +221,11 @@ export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
 export GPG_TTY=$(tty)
 
 ## Define where the Android SDK should be installed
-export ANDROID_SDK_ROOT=/usr/local/share/android-sdk
-export ANDROID_NDK_ROOT=/usr/local/share/android-ndk
-export ANDROID_SDK_HOME=/usr/local/share/android-sdk
-export ANDROID_EMULATOR_HOME=/usr/local/share/android-sdk/emulator
-export ANDROID_AVD_HOME=${HOME}/.android/adv
+#export ANDROID_SDK_ROOT=/usr/local/share/android-sdk
+#export ANDROID_NDK_ROOT=/usr/local/share/android-ndk
+#export ANDROID_SDK_HOME=/usr/local/share/android-sdk
+#export ANDROID_EMULATOR_HOME=/usr/local/share/android-sdk/emulator
+#export ANDROID_AVD_HOME=${HOME}/.android/adv
 
 # Define where gradle should store its local data files
 export GRADLE_USER_HOME=${XDG_DATA_HOME}/gradle

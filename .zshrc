@@ -157,10 +157,12 @@ alias grep='grep --color'
 
 ## replace ls -> exa
 #if ! _has_alias ls; then
-    alias ls='ls -FGhkO'
-    alias la='ls -A'
+    #alias ls='ls -FGhkO'
+    alias ls='exa --icons --group-directories-first -h --git --color-scale'
+    alias la='ls -a'
     alias ll='ls -l'
-    alias lla='ls -Al'
+    alias lla='ls -al'
+    alias lal='ls -al'
 #fi
 
 ## git aliases
