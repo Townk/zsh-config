@@ -1,5 +1,8 @@
-#!/usr/bin/env zsh
-# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4 -*-
+# # --------------------------------------------------------------------
+# # Configuration file for Z Shell
+# # By: Thiago Alves
+# # Last Update: May 4, 2021
+# # --------------------------------------------------------------------
 
 # MIT License
 #
@@ -8,7 +11,7 @@
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sub-license, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
@@ -23,8 +26,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 # # --------------------------------------------------------------------
-# # 1. Message Of The Day (MOTD)
+# # Contents:
+# # --------
+# # 1. Profile start hook
+# # 2. Message Of The Day (MOTD)
+# # 3. Plugins
+# # 4. Profile finish hook
+# # --------------------------------------------------------------------
+
+# # --------------------------------------------------------------------
+# # 1. Profile start hook
+# # --------------------------------------------------------------------
+
+for hook in ${XDG_DATA_HOME}/zsh/hooks/*.zprofile.start.hook.zsh(#qN); do
+    source $hook
+done
+
+
+# # --------------------------------------------------------------------
+# # 2. Message Of The Day (MOTD)
 # # --------------------------------------------------------------------
 case $OSTYPE in
   darwin*)
@@ -74,7 +96,7 @@ echo -ne "\e[0m"
 
 
 # # --------------------------------------------------------------------
-# # 2. Plugins
+# # 3. Plugins
 # # --------------------------------------------------------------------
 for plugindir in $pluginpath; do
     if [ -d $plugindir ]; then
@@ -86,24 +108,9 @@ done
 
 
 # # --------------------------------------------------------------------
-# # 3. System specific pre-configuration
+# # 4. Profile finish hook
 # # --------------------------------------------------------------------
-local SYSTEM_CONFIG="${ZDOTDIR}/config.d"
-local SYSTEM_CONFIG_PRE_SUFFIX="-pre.zsh"
-local SYSTEM_CONFIG_POST_SUFFIX="-post.zsh"
 
-case "$OSTYPE" in
-  darwin*)
-    SYSTEM_CONFIG="${SYSTEM_CONFIG}/macos"
-    ;;
-  linux*)
-    SYSTEM_CONFIG="${SYSTEM_CONFIG}/linux"
-    ;;
-  dragonfly*|freebsd*|netbsd*|openbsd*)
-    SYSTEM_CONFIG="${SYSTEM_CONFIG}/bsd"
-    ;;
-esac
-
-if [ -f "${SYSTEM_CONFIG}${SYSTEM_CONFIG_PRE_SUFFIX}" ]; then
-    source "${SYSTEM_CONFIG}${SYSTEM_CONFIG_PRE_SUFFIX}"
-fi
+for hook in ${XDG_DATA_HOME}/zsh/hooks/*.zprofile.finish.hook.zsh(#qN); do
+    source $hook
+done

@@ -1,5 +1,8 @@
-#!/usr/bin/env zsh
-# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4 -*-
+# # --------------------------------------------------------------------
+# # Configuration file for Z Shell
+# # By: Thiago Alves
+# # Last Update: May 4, 2021
+# # --------------------------------------------------------------------
 
 # MIT License
 #
@@ -8,7 +11,7 @@
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sub-license, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
@@ -23,33 +26,42 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# # --------------------------------------------------------------------
-# # Configuration file for Z Shell
-# # By: Thiago Alves
-# # Last Update: March, 22 2019
-# # --------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+# Contents:
+# --------
+# 1. Rc variables          (55F4CFF53B1E)
+# 2. Rc start hook         (991072B5AC58)
+# 3. Autoloads             (CD851A40D75D)
+# 4. Widgets               (182A6043AA5C)
+# 5. Command Completion    (C26B46FC6C58)
+# 6. Aliases               (EAC4B42D6CE5)
+# 7. Key Bindings          (2103E5DCBE6E)
+# 8. Rc finish hook        (EA5438388A07)
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+# 1. Rc variables (55F4CFF53B1E)
+#-------------------------------------------------------------------------------
+
+## history settins
+export HISTSIZE=100000
+export HISTFILE=${ZSH_CACHE_DIR}/history
+export SAVEHIST=${HISTSIZE}
 
 
-# # --------------------------------------------------------------------
-# # Contents:
-# # --------
-# #  1. Plugins
-# #  2. System specific pre-configuration
-# #  3. Environment Options
-# #  4. Custom Shell Functions
-# #  5. Applications
-# #  6. Define color variables
-# #  7. Promp Appearances
-# #  8. Command Completion
-# #  9. Aliases
-# # 10. Key Bindings
-# # 11. System specific post-configuration
-# # --------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# 2. Rc start hook (991072B5AC58)
+#-------------------------------------------------------------------------------
+
+for hook in ${XDG_DATA_HOME}/zsh/hooks/*.zshrc.start.hook.zsh(#qN); do
+    source $hook
+done
 
 
-# # --------------------------------------------------------------------
-# # 1. Autoloads
-# # --------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# 3. Autoloads (CD851A40D75D)
+#-------------------------------------------------------------------------------
 
 # Now that FPATH is set correctly, do autoloaded functions.
 # Autoload all functions in $FPATH - that is, all files in each component of the
@@ -61,9 +73,9 @@ for path_dir in "$fpath[@]"; do
 done
 
 
-# # --------------------------------------------------------------------
-# # 2. Widgets
-# # --------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# 4. Widgets (182A6043AA5C)
+#-------------------------------------------------------------------------------
 
 # Insert last word wrapper for vicmd
 function vi-insert-last-word {
@@ -87,10 +99,10 @@ function explain-this {
 zle -N explain-this
 
 
-# # --------------------------------------------------------------------
-# # 3. Command Completion
-# # --------------------------------------------------------------------
-#
+#-------------------------------------------------------------------------------
+# 5. Command Completion (C26B46FC6C58)
+#-------------------------------------------------------------------------------
+
 ## A nice way of adding colour to auto-completion (according to ZshWiki)
 zmodload -i zsh/complist
 
@@ -140,30 +152,19 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|[._-]=* r:|=*'
 #bashcompinit
 
 
-# # --------------------------------------------------------------------
-# # 4. Aliases
-# # --------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# 6. Aliases (EAC4B42D6CE5)
+#-------------------------------------------------------------------------------
 
 ## global aliases
 alias -g NUL="> /dev/null 2>&1"
 alias -g C='| wc -l'
 
 ## basic commands
-alias rm='rm -i' # always confirm when deleting a file
 alias h='history 1 -1' # full history
 alias pgrep='pgrep -lf' # long output, match against full args list
 alias em='emacs -nw'
 alias grep='grep --color'
-
-## replace ls -> exa
-#if ! _has_alias ls; then
-    #alias ls='ls -FGhkO'
-    alias ls='exa --icons --group-directories-first -h --git --color-scale'
-    alias la='ls -a'
-    alias ll='ls -l'
-    alias lla='ls -al'
-    alias lal='ls -al'
-#fi
 
 ## git aliases
 alias gst='git status --short'
@@ -188,20 +189,13 @@ alias ssh-x='ssh -o CompressionLevel=9 -c arcfour,blowfish-cbc -YC'
 # makes easy to initiate iPython
 alias py='ipython'
 
-# NeoVim
-#if _has nvim; then
-    alias vim='nvim'
-    alias vi='nvim'
-#elif _has vim; then
-#    alias vi='vim'
-#else
-#    alias vim='vi'
-#fi
+alias vim='nvim'
+alias vi='nvim'
 
 
-# # --------------------------------------------------------------------
-# # 5. Key Bindings (must be one of the last things in the config)
-# # --------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# 7. Key Bindings (2103E5DCBE6E)
+#-------------------------------------------------------------------------------
 
 ## set bindings to Vi mode
 bindkey -v
@@ -271,3 +265,12 @@ bindkey '^k' iterm_go_split_up
 bindkey '^x.' explain-this
 
 bindkey -M vicmd "^V" edit-command-line
+
+
+#-------------------------------------------------------------------------------
+# 8. Rc finish hook (EA5438388A07)
+#-------------------------------------------------------------------------------
+
+for hook in ${XDG_DATA_HOME}/zsh/hooks/*.zshrc.finish.hook.zsh(#qN); do
+    source $hook
+done

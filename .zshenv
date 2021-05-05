@@ -1,5 +1,8 @@
-#!/usr/bin/env zsh
-# -*- mode: sh; indent-tabs-mode: nil; tab-width: 4 -*-
+# # --------------------------------------------------------------------
+# # Configuration file for Z Shell
+# # By: Thiago Alves
+# # Last Update: May 4, 2021
+# # --------------------------------------------------------------------
 
 # MIT License
 #
@@ -8,7 +11,7 @@
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sub-license, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
@@ -23,21 +26,33 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-#zmodload zsh/zprof
 
 # # --------------------------------------------------------------------
-# # 1. Core functions
+# # Contents:
+# # --------
+# # 1. Env start hook
+# # 2. Core functions
+# # 3. ZSH options
+# # 4. XDG variables
+# # 5. System variables
+# # 6. Helper variables
+# # 7. Path-like variables
+# # 8. Others
+# # 9. Env finish hook
 # # --------------------------------------------------------------------
 
-## Returns whether the given command is executable or aliased.
-function _has() {
-    return $(whence $1 >/dev/null 2>&1)
-}
+# # --------------------------------------------------------------------
+# # 1. Env start hook
+# # --------------------------------------------------------------------
 
-## Returns whether the given alias exists
-function _has_alias() {
-    return $(alias $1 > /dev/null 2>&1)
-}
+for hook in ${XDG_DATA_HOME}/zsh/hooks/*.zshenv.start.hook.zsh(N); do
+    source $hook
+done
+
+
+# # --------------------------------------------------------------------
+# # 2. Core functions
+# # --------------------------------------------------------------------
 
 ## enable setenv() for csh compatibility
 function setenv {
@@ -46,7 +61,7 @@ function setenv {
 
 
 # # --------------------------------------------------------------------
-# # 2. ZSH options
+# # 3. ZSH options
 # # --------------------------------------------------------------------
 
 ## turn options on
@@ -78,7 +93,7 @@ unsetopt \
 
 
 # # --------------------------------------------------------------------
-# # 3. XDG variables
+# # 4. XDG variables
 # # --------------------------------------------------------------------
 
 ## Make sure apps know about `XDG defaults`
@@ -90,21 +105,19 @@ export XDG_LIB_HOME=$XDG_LOCAL_ROOT/lib
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_LOG_HOME=$XDG_RUNTIME_DIR/log
 export XDG_OPT_HOME=$XDG_LOCAL_ROOT/opt
-export XDG_TEMP_HOME=$XDG_LOCAL_ROOT/tmp
+export XDG_TEMP_HOME=$XDG_LOCAL_ROOT/temp
 
 
 # # --------------------------------------------------------------------
-# # 4. System variables
+# # 5. System variables
 # # --------------------------------------------------------------------
+
+# Disable Apple Terminal sessions since I don't use Apple Terminal
+SHELL_SESSIONS_DISABLE=1
 
 # Make ZSH more compliant with my personal directory layout
 export ZSH_CACHE_DIR=${XDG_CACHE_HOME}/zsh
-
-## history settins
-export HISTSIZE=100000
-# cache directory
-export HISTFILE=${ZSH_CACHE_DIR}/history
-export SAVEHIST=${HISTSIZE}
+export ZSH_DATA_DIR=${XDG_DATA_HOME}/zsh
 
 ## default language for shell
 export LC_ALL=en_US.UTF-8
@@ -120,16 +133,17 @@ export LESS="-r -F"
 export LESSOPEN="|lesspipe %s"
 export LESSCLOSE="lesspipe %s %s"
 
+export LESSHISTFILE="$XDG_CACHE_HOME"/less/history
+
 ## make colors better for dark terminals
 export CLICOLOR=1
-export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
 
 ## Kill the lag on vim mode when pressing <ESC>
 export KEYTIMEOUT=1
 
 
 # # --------------------------------------------------------------------
-# # 5. Helper variables
+# # 6. Helper variables
 # # --------------------------------------------------------------------
 
 ## Define a places for local binaries
@@ -139,9 +153,13 @@ export USER_LIB=$XDG_LOCAL_ROOT/lib
 ## Define a places for local temporary files
 export TMPDIR=${XDG_TEMP_HOME}
 
+# Defines the Homebrew instalation dir
+export HOMEBREW_PREFIX=/usr/local
+## Allow apps to be installed on the /Applications directory
+export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
 # # --------------------------------------------------------------------
-# # 6. Path-like variables
+# # 7. Path-like variables
 # # --------------------------------------------------------------------
 
 ## Custom array holding all directoris that should have local plugin
@@ -171,10 +189,11 @@ NORMALIZE_VARS=( cdpath )
 # Set the list of directories that Zsh searches for programs.
 path=(
     ${USER_BIN}
-    /usr/local/opt/gettext/bin
-    /usr/local/opt/sqlite/bin
-    /usr/local/MacGPG2/bin
-    {/usr,/usr/local,}/{bin,sbin}
+    ${HOMEBREW_PREFIX}/opt/gettext/bin
+    ${HOMEBREW_PREFIX}/opt/sqlite/bin
+    ${HOMEBREW_PREFIX}/MacGPG2/bin
+    ${HOMEBREW_PREFIX}/share/zsh/scripts
+    {/usr,/$HOMEBREW_PREFIX,}/{bin,sbin}
     "$path[@]"
 )
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] path )
@@ -182,6 +201,7 @@ NORMALIZE_VARS=( $NORMALIZE_VARS[@] path )
 fpath=(
     ${XDG_DATA_HOME}/zsh/functions
     ${ZDOTDIR:-$HOME}/functions
+    ${HOMEBREW_PREFIX}/share/zsh/{site-functions,functions}
     /usr/share/zsh/site-functions
     /usr/share/zsh/5.3/functions
     "${fpath[@]}"
@@ -192,52 +212,34 @@ NORMALIZE_VARS=( $NORMALIZE_VARS[@] fpath )
 MANPATH=${XDG_DATA_HOME}/man:/usr/share/man:${MANPATH}
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] MANPATH )
 
-HELPDIR=${XDG_DATA_HOME}/zsh/help:/usr/local/share/zsh/help:/usr/share/zsh/5.3/help
+HELPDIR=${XDG_DATA_HOME}/zsh/help:${XDG_DATA_HOME}/zsh/helpfiles:${HOMEBREW_PREFIX}/share/zsh/help:${HOMEBREW_PREFIX}/share/zsh/helpfiles:/usr/share/zsh/5.3/help:/usr/share/zsh/5.3/helpfiles
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] HELPDIR )
 
 export PERLLIB=${XDG_LIB_HOME}/perl:${PERLLIB}
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] PERL5LIB )
 
 # Path for dynamic loading of libraries.
-export LD_LIBRARY_PATH=${USER_LIB}:/usr/local/lib:/usr/lib:${LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH=${USER_LIB}:${HOMEBREW_PREFIX}/lib:/usr/lib:${LD_LIBRARY_PATH}
 NORMALIZE_VARS=( $NORMALIZE_VARS[@] LD_LIBRARY_PATH )
 
 
 # # --------------------------------------------------------------------
-# # 7. Others
+# # 8. Others
 # # --------------------------------------------------------------------
 
-
-export LDFLAGS="-L/usr/local/opt/gettext/lib -L/usr/local/opt/sqlite/lib"
-export CPPFLAGS="-I/usr/local/opt/gettext/include -I/usr/local/opt/sqlite/include"
-export PKG_CONFIG_PATH="/usr/local/opt/sqlite/lib/pkgconfig"
-
-export POETRY_HOME=${XDG_OPT_HOME}/poetry
-export RUSTUP_HOME=${XDG_OPT_HOME}/rustup
-export CARGO_HOME=${XDG_OPT_HOME}/cargo
-
-## Make GnuPG to use XDG configuration dir
-export GNUPGHOME=${XDG_CONFIG_HOME}/gnupg
-export GPG_TTY=$(tty)
-
-## Define where the Android SDK should be installed
-#export ANDROID_SDK_ROOT=/usr/local/share/android-sdk
-#export ANDROID_NDK_ROOT=/usr/local/share/android-ndk
-#export ANDROID_SDK_HOME=/usr/local/share/android-sdk
-#export ANDROID_EMULATOR_HOME=/usr/local/share/android-sdk/emulator
-#export ANDROID_AVD_HOME=${HOME}/.android/adv
+export LDFLAGS="-L/usr/local/opt/gettext/lib -L/usr/local/opt/sqlite/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib"
+export CPPFLAGS="-I/usr/local/opt/gettext/include -I/usr/local/opt/sqlite/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include"
+export PKG_CONFIG_PATH="/usr/local/opt/sqlite/lib/pkgconfig:/usr/local/opt/zlib/lib/pkgconfig"
+export MANPATH=${XDG_DATA_HOME}/man:${HOMEBREW_PREFIX}/share/man:$MANPATH
 
 # Define where gradle should store its local data files
 export GRADLE_USER_HOME=${XDG_DATA_HOME}/gradle
 
-# Define where iPython should store its local data files
-export IPYTHONDIR=${XDG_DATA_HOME}/ipython
 
-## Ansible configuration
-export ANSIBLE_LOCAL_TEMP=${XDG_TEMP_HOME}/ansible
-export ANSIBLE_LOG_PATH=${XDG_LOG_HOME}/ansible/ansible.log
-export ANSIBLE_SSH_CONTROL_PATH_DIR=${XDG_RUNTIME_DIR}/ansible/control
-export ANSIBLE_GALAXY_TOKEN_PATH=${XDG_RUNTIME_DIR}/ansible/galaxy.token
-export ANSIBLE_PERSISTENT_CONTROL_PATH_DIR=${XDG_RUNTIME_DIR}/ansible/pc
-mkdir -p ${XDG_RUNTIME_DIR}/ansible
-mkdir -p ${XDG_LOG_HOME}/ansible
+# # --------------------------------------------------------------------
+# # 9. Env finish hook
+# # --------------------------------------------------------------------
+
+for hook in ${XDG_DATA_HOME}/zsh/hooks/*.zshenv.finish.hook.zsh(#qN); do
+    source $hook
+done
